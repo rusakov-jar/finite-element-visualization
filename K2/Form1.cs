@@ -982,7 +982,7 @@ namespace K2
 
             FEMAssembler assembler = new FEMAssembler(global_net_x.Count * global_net_y.Count);
             double lambda = 6, gamma = 1;
-            int f_mode = 1;
+            int f_mode = 4;
 
             // сборка глобальной матрицы
             for (int i = 0; i < global_net_y.Count - 1; i++)
@@ -1007,6 +1007,7 @@ namespace K2
             assembler.applyBoundaryCondition(bounds);
             // Вызов решателя СЛАУ
             solution = Gauss.Solve(assembler.globalMatrix, assembler.globalB);
+            // запись решения в файл
             WriteResults(f_mode);
         }
         Dictionary<int, double> BuildBoundaryDictions(List<float> x_list, List<float> y_list, double lambda, double gamma, int mode)
@@ -1017,20 +1018,20 @@ namespace K2
                 float x = x_list[0];
                 float y = y_list[i];
                 int num = i * x_list.Count;
-                res[num] = FVal(x, y, lambda, gamma, mode);
+                res[num] = UVal(x, y, mode);
                 x = x_list.Last();
                 num += x_list.Count - 1;
-                res[num] = FVal(x, y, lambda, gamma, mode);
+                res[num] = UVal(x, y, mode);
             }
             for (int i = 0; i < x_list.Count; i++)
             {
                 float x = x_list[i];
                 float y = y_list[0];
                 int num = i;
-                res[num] = FVal(x, y, lambda, gamma, mode);
+                res[num] = UVal(x, y, mode);
                 y = y_list.Last();
                 num += x_list.Count * (y_list.Count - 1);
-                res[num] = FVal(x, y, lambda, gamma, mode);
+                res[num] = UVal(x, y, mode);
             }
             return res;
         }
@@ -1157,6 +1158,8 @@ namespace K2
                 case 0: res = 1; break;
                 case 1: res = (x + y) * gamma; break;
                 case 2: res = -lambda * 4 + (x*x + y*y) * gamma; break;
+                case 3: res = -lambda * (6 * x + 6 * y) + (Math.Pow(x, 3) + Math.Pow(y, 3)) * gamma; break;
+                case 4: res = -lambda * (12 * x * x + 12 * y * y) + (Math.Pow(x, 4) + Math.Pow(y, 4)) * gamma; break;
                 case -1: res = -lambda * (-Math.Sin(x) - Math.Sin(y)) + (Math.Sin(x) + Math.Sin(y)) * gamma; break;
                 default: res = 0; break;
             }
@@ -1170,6 +1173,8 @@ namespace K2
                 case 0: res = 1; break;
                 case 1: res = (x + y); break;
                 case 2: res = (x * x + y * y); break;
+                case 3: res = Math.Pow(x, 3) + Math.Pow(y, 3); break;
+                case 4: res = Math.Pow(x,4) + Math.Pow(y, 4); break;
                 case -1: res = (Math.Sin(x) + Math.Sin(y)); break;
                 default: res = 0; break;
             }
@@ -1212,7 +1217,7 @@ namespace K2
                 for (int i = 0; i < solution.Length; i++)
                 {
                     // F4 выводит числа с 4 знаками после запятой для аккуратности
-                    writer.WriteLine($"{i,-10} | {u_real_solution[i],-18:F4} | {solution[i],-18:F4} | {error[i],-15:F4}");
+                    writer.WriteLine($"{i,-10} | {u_real_solution[i],-18:G10} | {solution[i],-18:G10} | {error[i],-15:G8}");
                 }
 
                 writer.WriteLine(new string('-', 70)); // Разделительная линия перед итогами

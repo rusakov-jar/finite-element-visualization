@@ -200,7 +200,7 @@ namespace K2
     {
         public PointF[,] nodes;
         public SizeF net_size = new SizeF(-1,-1);
-        public Pen pen = new Pen(Color.Blue);
+        public Pen pen = new Pen(Color.Black);
         public float min_x_step;
         public float min_y_step;
         public float max_x_step;

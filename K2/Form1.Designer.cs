@@ -104,8 +104,6 @@
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.сохранитьToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.загрузитьToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.button_add_split = new System.Windows.Forms.Button();
-            this.button_remove_split = new System.Windows.Forms.Button();
             this.button_solve = new System.Windows.Forms.Button();
             this.panel4 = new System.Windows.Forms.Panel();
             this.groupBox1.SuspendLayout();
@@ -925,28 +923,6 @@
             this.загрузитьToolStripMenuItem.Text = "Загрузить";
             this.загрузитьToolStripMenuItem.Click += new System.EventHandler(this.загрузитьToolStripMenuItem_Click);
             // 
-            // button_add_split
-            // 
-            this.button_add_split.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button_add_split.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.button_add_split.Location = new System.Drawing.Point(705, 5);
-            this.button_add_split.Name = "button_add_split";
-            this.button_add_split.Size = new System.Drawing.Size(35, 34);
-            this.button_add_split.TabIndex = 11;
-            this.button_add_split.Text = "+";
-            this.button_add_split.UseVisualStyleBackColor = true;
-            // 
-            // button_remove_split
-            // 
-            this.button_remove_split.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button_remove_split.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.button_remove_split.Location = new System.Drawing.Point(746, 4);
-            this.button_remove_split.Name = "button_remove_split";
-            this.button_remove_split.Size = new System.Drawing.Size(35, 35);
-            this.button_remove_split.TabIndex = 20;
-            this.button_remove_split.Text = "-";
-            this.button_remove_split.UseVisualStyleBackColor = true;
-            // 
             // button_solve
             // 
             this.button_solve.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
@@ -964,11 +940,9 @@
             this.panel4.Controls.Add(this.buttonSettings);
             this.panel4.Controls.Add(this.button_solve);
             this.panel4.Controls.Add(this.button4);
-            this.panel4.Controls.Add(this.button_add_split);
             this.panel4.Controls.Add(this.textBox3);
             this.panel4.Controls.Add(this.Scale);
             this.panel4.Controls.Add(this.button5);
-            this.panel4.Controls.Add(this.button_remove_split);
             this.panel4.Location = new System.Drawing.Point(4, 761);
             this.panel4.Name = "panel4";
             this.panel4.Size = new System.Drawing.Size(912, 40);
@@ -1090,8 +1064,6 @@
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem сохранитьToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem загрузитьToolStripMenuItem;
-        private System.Windows.Forms.Button button_add_split;
-        private System.Windows.Forms.Button button_remove_split;
         private System.Windows.Forms.Button button_solve;
         private System.Windows.Forms.Panel panel4;
     }
