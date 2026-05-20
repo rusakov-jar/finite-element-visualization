@@ -39,6 +39,9 @@
             this.listBoxMode = new System.Windows.Forms.ListBox();
             this.label5 = new System.Windows.Forms.Label();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.PresetNumericUpDown1 = new System.Windows.Forms.NumericUpDown();
+            this.label6 = new System.Windows.Forms.Label();
+            ((System.ComponentModel.ISupportInitialize)(this.PresetNumericUpDown1)).BeginInit();
             this.SuspendLayout();
             // 
             // button_save
@@ -143,11 +146,29 @@
             this.comboBox1.Size = new System.Drawing.Size(121, 24);
             this.comboBox1.TabIndex = 13;
             // 
+            // PresetNumericUpDown1
+            // 
+            this.PresetNumericUpDown1.Location = new System.Drawing.Point(106, 221);
+            this.PresetNumericUpDown1.Name = "PresetNumericUpDown1";
+            this.PresetNumericUpDown1.Size = new System.Drawing.Size(120, 22);
+            this.PresetNumericUpDown1.TabIndex = 14;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(13, 227);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(46, 16);
+            this.label6.TabIndex = 15;
+            this.label6.Text = "Preset";
+            // 
             // Settings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(537, 651);
+            this.Controls.Add(this.label6);
+            this.Controls.Add(this.PresetNumericUpDown1);
             this.Controls.Add(this.comboBox1);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.listBoxMode);
@@ -161,6 +182,7 @@
             this.Controls.Add(this.button_save);
             this.Name = "Settings";
             this.Text = "Settings";
+            ((System.ComponentModel.ISupportInitialize)(this.PresetNumericUpDown1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -178,5 +200,7 @@
         private System.Windows.Forms.ListBox listBoxMode;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.ComboBox comboBox1;
+        private System.Windows.Forms.NumericUpDown PresetNumericUpDown1;
+        private System.Windows.Forms.Label label6;
     }
 }

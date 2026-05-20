@@ -980,9 +980,9 @@ namespace K2
             }
             global_net_y.Add(LYPoints.Last());
 
-            FEMAssembler assembler = new FEMAssembler(global_net_x.Count * global_net_y.Count);
+            FEMAssembler assembler = new FEMAssembler(global_net_x.Count, global_net_y.Count);
             double lambda = 6, gamma = 1;
-            int f_mode = 4;
+            int f_mode = 1;
 
             // сборка глобальной матрицы
             for (int i = 0; i < global_net_y.Count - 1; i++)
@@ -1006,7 +1006,8 @@ namespace K2
             Dictionary<int, double> bounds = BuildBoundaryDictions(global_net_x, global_net_y, lambda, gamma, f_mode);
             assembler.applyBoundaryCondition(bounds);
             // Вызов решателя СЛАУ
-            solution = Gauss.Solve(assembler.globalMatrix, assembler.globalB);
+            double[,] denseMatrix = assembler.ToDense();
+            solution = Gauss.Solve(denseMatrix, assembler.globalB);
             // запись решения в файл
             WriteResults(f_mode);
         }
