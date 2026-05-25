@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CGSolver.cs" />
     <Compile Include="FEMAssembler.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
@@ -65,7 +66,6 @@
     <Compile Include="FormSubAreaSettings.Designer.cs">
       <DependentUpon>FormSubAreaSettings.cs</DependentUpon>
     </Compile>
-    <Compile Include="Gauss.cs" />
     <Compile Include="NetCalc.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

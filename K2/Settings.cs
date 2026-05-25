@@ -15,6 +15,7 @@ namespace K2
         public float eps;
         public float q1, q2;
         public string mode;
+        public bool show_net, show_triag_border, show_element_border;
 
         public Settings()
         {
@@ -44,6 +45,9 @@ namespace K2
             System.IO.File.WriteAllText("../../settings.txt", txt);
             textBoxQ1.Text = q1.ToString();
             textBoxQ2.Text = q2.ToString();
+            show_net = checkBoxShowNetLines.Checked;
+            show_triag_border = checkBoxTriagLine.Checked;
+            show_element_border = checkBoxShowElementBorder.Checked;
             listBoxMode.Text = mode;
             Close();
         }
