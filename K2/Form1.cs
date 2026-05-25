@@ -31,6 +31,7 @@ namespace K2
         public string settings_str;
         public float eps, q1, q2;
         public string mode;
+        bool show_subarea_border = true, show_triangle_border = true, show_element_border = true;
 
         private double[] solution;
 
@@ -72,14 +73,18 @@ namespace K2
             {
                 int width = panel1.Size.Width;
                 int height = panel1.Size.Height;
+                Pen pen = new Pen(Color.Black, 3);
                 // отрисовка внешнего разбиения 
-                for (int i = 0; i < LXPoints.Count; i++)
+                if (show_subarea_border)
                 {
-                    g.DrawLine(Pens.Black, (LXPoints[i] - LXPoints[0]) * scale, 0, (LXPoints[i] - LXPoints[0]) * scale, height);
-                }
-                for (int i = 0; i < LYPoints.Count; i++)
-                {
-                    g.DrawLine(Pens.Black, 0, height - ((LYPoints[i] - LYPoints[0]) * scale), width, height - (LYPoints[i] - LYPoints[0]) * scale);
+                    for (int i = 0; i < LXPoints.Count; i++)
+                    {
+                        g.DrawLine(pen, (LXPoints[i] - LXPoints[0]) * scale, 0, (LXPoints[i] - LXPoints[0]) * scale, height);
+                    }
+                    for (int i = 0; i < LYPoints.Count; i++)
+                    {
+                        g.DrawLine(pen, 0, height - ((LYPoints[i] - LYPoints[0]) * scale), width, height - (LYPoints[i] - LYPoints[0]) * scale);
+                    }
                 }
                 // отрисовка выделения области
                 if (SelCell != null)
@@ -108,42 +113,45 @@ namespace K2
                     g.DrawLine(SelCellBorder, x2, y1, x2, y2);
                 }
                 // цикл отрисовки по подобластям
-                for (int i = 0; i < subareas.GetLength(0); i++)
+                if (show_element_border)
                 {
-                    for (int j = 0; j < subareas.GetLength(1); j++)
+                    for (int i = 0; i < subareas.GetLength(0); i++)
                     {
-                        if (subareas[i, j] == null)
+                        for (int j = 0; j < subareas.GetLength(1); j++)
                         {
-                            continue;
-                        }
-                        Pen subarea_pen = subareas[i, j].pen;
-                        SmallNet cur_net = subareas[i, j];
-                        for (int i1 = 0; i1 < cur_net.nodes.GetLength(0); i1++)
-                        {
+                            if (subareas[i, j] == null)
+                            {
+                                continue;
+                            }
+                            Pen subarea_pen = subareas[i, j].pen;
+                            SmallNet cur_net = subareas[i, j];
+                            for (int i1 = 0; i1 < cur_net.nodes.GetLength(0); i1++)
+                            {
+                                for (int j1 = 0; j1 < cur_net.nodes.GetLength(1); j1++)
+                                {
+                                    //draw nodes
+                                }
+                            }
+                            for (int i1 = 0; i1 < cur_net.nodes.GetLength(0); i1++)
+                            {
+                                float x1 = (cur_net.nodes[i1, 0].X - LXPoints[0]) * scale;
+                                float x2 = x1;
+                                float y1 = (cur_net.nodes[i1, 0].Y - LYPoints[0]) * scale;
+                                float y2 = y1 + cur_net.net_size.Height * scale;
+                                y1 = height - y1;
+                                y2 = height - y2;
+                                g.DrawLine(subarea_pen, x1, y1, x2, y2);
+                            }
                             for (int j1 = 0; j1 < cur_net.nodes.GetLength(1); j1++)
                             {
-                                //draw nodes
+                                float y1 = (cur_net.nodes[0, j1].Y - LYPoints[0]) * scale;
+                                float y2 = y1;
+                                float x1 = (cur_net.nodes[0, j1].X - LXPoints[0]) * scale;
+                                float x2 = x1 + cur_net.net_size.Width * scale;
+                                y1 = height - y1;
+                                y2 = height - y2;
+                                g.DrawLine(subarea_pen, x1, y1, x2, y2);
                             }
-                        }
-                        for (int i1 = 0; i1 < cur_net.nodes.GetLength(0); i1++)
-                        {
-                            float x1 = (cur_net.nodes[i1, 0].X - LXPoints[0]) * scale;
-                            float x2 = x1;
-                            float y1 = (cur_net.nodes[i1, 0].Y - LYPoints[0]) * scale;
-                            float y2 = y1 + cur_net.net_size.Height * scale;
-                            y1 = height - y1;
-                            y2 = height - y2;
-                            g.DrawLine(subarea_pen, x1, y1, x2, y2);
-                        }
-                        for (int j1 = 0; j1 < cur_net.nodes.GetLength(1); j1++)
-                        {
-                            float y1 = (cur_net.nodes[0, j1].Y - LYPoints[0]) * scale;
-                            float y2 = y1;
-                            float x1 = (cur_net.nodes[0, j1].X - LXPoints[0]) * scale;
-                            float x2 = x1 + cur_net.net_size.Width * scale;
-                            y1 = height - y1;
-                            y2 = height - y2;
-                            g.DrawLine(subarea_pen, x1, y1, x2, y2);
                         }
                     }
                 }
@@ -579,6 +587,9 @@ namespace K2
             q1 = newForm.q1;
             q2 = newForm.q2;
             mode = newForm.mode;
+            show_subarea_border = newForm.show_net;
+            show_triangle_border = newForm.show_triag_border;
+            show_element_border = newForm.show_element_border;
         }
 
         private void button5_Click(object sender, EventArgs e)
@@ -982,7 +993,7 @@ namespace K2
 
             FEMAssembler assembler = new FEMAssembler(global_net_x.Count, global_net_y.Count);
             double lambda = 6, gamma = 1;
-            int f_mode = 1;
+            int f_mode = -1;
 
             // сборка глобальной матрицы
             for (int i = 0; i < global_net_y.Count - 1; i++)
@@ -1006,8 +1017,13 @@ namespace K2
             Dictionary<int, double> bounds = BuildBoundaryDictions(global_net_x, global_net_y, lambda, gamma, f_mode);
             assembler.applyBoundaryCondition(bounds);
             // Вызов решателя СЛАУ
-            double[,] denseMatrix = assembler.ToDense();
-            solution = Gauss.Solve(denseMatrix, assembler.globalB);
+            var multiply = new Func<double[], double[]>(vec =>
+            {
+                double[] result = new double[vec.Length];
+                assembler.Multiply(vec, result);
+                return result;
+            });
+            solution = CGSolver.Solve(multiply, assembler.globalB);
             // запись решения в файл
             WriteResults(f_mode);
         }
@@ -1119,7 +1135,10 @@ namespace K2
                                 );
                             brush.CenterColor = center_color;
                             g.FillPolygon(brush, points);
-                            g.DrawPolygon(Pens.Gray, points);
+                            if (show_triangle_border)
+                            {
+                                g.DrawPolygon(Pens.Gray, points);
+                            }
                         }
                     }
                     points = new PointF[]
@@ -1145,7 +1164,10 @@ namespace K2
                                 );
                             brush.CenterColor = center_color;
                             g.FillPolygon(brush, points);
-                            g.DrawPolygon(Pens.Gray, points);
+                            if (show_triangle_border)
+                            {
+                                g.DrawPolygon(Pens.Gray, points);
+                            }
                         }
                     }
                 }
@@ -1205,20 +1227,21 @@ namespace K2
                     error[i * global_net_x.Count + j] = u_real_solution[i * global_net_x.Count + j] - solution[i * global_net_x.Count + j];
                 }
             }
-            double u_real_norm = VectNorm(solution), err_norm = VectNorm(error);
+            double u_real_norm = VectNorm(u_real_solution), err_norm = VectNorm(error);
 
             // Открываем файл для записи
             using (StreamWriter writer = new StreamWriter("mesh_results.txt"))
             {
                 // 1. Записываем шапку таблицы
                 // -15 означает выравнивание по левому краю, ширина столбца 15 символов
-                writer.WriteLine($"{"Индекс",-10} | {"Функция (Точн.)",-18} | {"Решение (МКЭ)",-18} | {"Погрешность",-15}");
+                writer.WriteLine($"{"Индекс",-10} | {"X",-10} | {"Y",-10} | {"Функция (Точн.)",-18} | {"Решение (МКЭ)",-18} | {"Погрешность",-15}");
 
                 // 2. Выводим строки таблицы с данными векторов
                 for (int i = 0; i < solution.Length; i++)
                 {
-                    // F4 выводит числа с 4 знаками после запятой для аккуратности
-                    writer.WriteLine($"{i,-10} | {u_real_solution[i],-18:G10} | {solution[i],-18:G10} | {error[i],-15:G8}");
+                    int x = i % global_net_x.Count, y = i / global_net_x.Count;
+                    
+                    writer.WriteLine($"{i,-10} | {global_net_x[x],-10:G5} | {global_net_y[y],-10:G5} | {u_real_solution[i],-18:G10} | {solution[i],-18:G10} | {error[i],-15:G8}");
                 }
 
                 writer.WriteLine(new string('-', 70)); // Разделительная линия перед итогами
@@ -1227,6 +1250,7 @@ namespace K2
                 // 4. Записываем финальные числа в конец файла
                 writer.WriteLine($"Норма вектора функции:     {u_real_norm:E6}");
                 writer.WriteLine($"Норма вектора погрешности: {err_norm:E6}");
+                writer.WriteLine($"Относительная погрешность решения: {err_norm/u_real_norm:E6}");
             }
         }
     }

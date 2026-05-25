@@ -175,20 +175,17 @@ namespace K2
                 for (int j = 0; j < 4; j++)
                 {
                     int gj = dict[j];
+                    if (gi < gj) continue; // пропускаем верхний треугольник
+
                     double val = g_local[i, j] + m_local[i, j];
 
                     if (gi == gj)
                     {
                         sparseMatrix.di[gi] += val;
                     }
-                    else if (gi > gj)
+                    else // gi > gj
                     {
                         int idx = GetAlIndex(gi, gj, Nx, sparseMatrix.ia);
-                        sparseMatrix.al[idx] += val;
-                    }
-                    else // gi < gj
-                    {
-                        int idx = GetAlIndex(gj, gi, Nx, sparseMatrix.ia);
                         sparseMatrix.al[idx] += val;
                     }
                 }
@@ -287,25 +284,23 @@ namespace K2
                 globalB[node] = value;
             }
         }
-        public double[,] ToDense()
+
+        public void Multiply(double[] x, double[] y)
         {
             int N = Nx * Ny;
-            double[,] dense = new double[N, N];
-
+            Array.Clear(y, 0, N);
+            for (int i = 0; i < N; i++)
+                y[i] += sparseMatrix.di[i] * x[i];
             for (int i = 0; i < N; i++)
             {
-                dense[i, i] = sparseMatrix.di[i];
-
                 for (int k = sparseMatrix.ia[i]; k < sparseMatrix.ia[i + 1]; k++)
                 {
                     int j = sparseMatrix.ja[k];
-                    double val = sparseMatrix.al[k];
-                    dense[i, j] = val;
-                    dense[j, i] = val; // симметрия
+                    double a_ij = sparseMatrix.al[k];
+                    y[i] += a_ij * x[j];
+                    y[j] += a_ij * x[i];
                 }
             }
-
-            return dense;
         }
     }
 }

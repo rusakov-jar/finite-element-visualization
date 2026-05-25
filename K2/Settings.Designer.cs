@@ -41,6 +41,9 @@
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.PresetNumericUpDown1 = new System.Windows.Forms.NumericUpDown();
             this.label6 = new System.Windows.Forms.Label();
+            this.checkBoxShowNetLines = new System.Windows.Forms.CheckBox();
+            this.checkBoxTriagLine = new System.Windows.Forms.CheckBox();
+            this.checkBoxShowElementBorder = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.PresetNumericUpDown1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -129,9 +132,9 @@
             this.label5.AutoSize = true;
             this.label5.Location = new System.Drawing.Point(13, 180);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(34, 16);
+            this.label5.Size = new System.Drawing.Size(62, 16);
             this.label5.TabIndex = 11;
-            this.label5.Text = "units";
+            this.label5.Text = "Ед. Изм.";
             // 
             // comboBox1
             // 
@@ -158,15 +161,48 @@
             this.label6.AutoSize = true;
             this.label6.Location = new System.Drawing.Point(13, 227);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(46, 16);
+            this.label6.Size = new System.Drawing.Size(55, 16);
             this.label6.TabIndex = 15;
-            this.label6.Text = "Preset";
+            this.label6.Text = "Пресет";
+            // 
+            // checkBoxShowNetLines
+            // 
+            this.checkBoxShowNetLines.AutoSize = true;
+            this.checkBoxShowNetLines.Location = new System.Drawing.Point(272, 14);
+            this.checkBoxShowNetLines.Name = "checkBoxShowNetLines";
+            this.checkBoxShowNetLines.Size = new System.Drawing.Size(110, 20);
+            this.checkBoxShowNetLines.TabIndex = 16;
+            this.checkBoxShowNetLines.Text = "Линии сетки";
+            this.checkBoxShowNetLines.UseVisualStyleBackColor = true;
+            // 
+            // checkBoxTriagLine
+            // 
+            this.checkBoxTriagLine.AutoSize = true;
+            this.checkBoxTriagLine.Location = new System.Drawing.Point(272, 40);
+            this.checkBoxTriagLine.Name = "checkBoxTriagLine";
+            this.checkBoxTriagLine.Size = new System.Drawing.Size(112, 20);
+            this.checkBoxTriagLine.TabIndex = 17;
+            this.checkBoxTriagLine.Text = "Контур град.";
+            this.checkBoxTriagLine.UseVisualStyleBackColor = true;
+            // 
+            // checkBoxShowElementBorder
+            // 
+            this.checkBoxShowElementBorder.AutoSize = true;
+            this.checkBoxShowElementBorder.Location = new System.Drawing.Point(272, 66);
+            this.checkBoxShowElementBorder.Name = "checkBoxShowElementBorder";
+            this.checkBoxShowElementBorder.Size = new System.Drawing.Size(138, 20);
+            this.checkBoxShowElementBorder.TabIndex = 18;
+            this.checkBoxShowElementBorder.Text = "Гран. элементов";
+            this.checkBoxShowElementBorder.UseVisualStyleBackColor = true;
             // 
             // Settings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(537, 651);
+            this.Controls.Add(this.checkBoxShowElementBorder);
+            this.Controls.Add(this.checkBoxTriagLine);
+            this.Controls.Add(this.checkBoxShowNetLines);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.PresetNumericUpDown1);
             this.Controls.Add(this.comboBox1);
@@ -202,5 +238,8 @@
         private System.Windows.Forms.ComboBox comboBox1;
         private System.Windows.Forms.NumericUpDown PresetNumericUpDown1;
         private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.CheckBox checkBoxShowNetLines;
+        private System.Windows.Forms.CheckBox checkBoxTriagLine;
+        private System.Windows.Forms.CheckBox checkBoxShowElementBorder;
     }
 }
