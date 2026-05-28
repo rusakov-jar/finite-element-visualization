@@ -33,7 +33,7 @@ namespace K2
         public string mode;
         bool show_subarea_border = true, show_triangle_border = true, show_element_border = true;
 
-        private double[] solution;
+        public double[] solution;
 
 
         public class SelectedCell
@@ -1026,6 +1026,16 @@ namespace K2
             solution = CGSolver.Solve(multiply, assembler.globalB);
             // запись решения в файл
             WriteResults(f_mode);
+            if (Application.OpenForms["ViewResultForm"] == null)
+            {
+                // Создаём новый экземпляр формы, передавая ссылку на текущую (this)
+                ViewResultForm glForm = new ViewResultForm(this);
+                glForm.Show();
+            }
+            else
+            {
+                Application.OpenForms["ViewResultForm"].Activate();
+            }
         }
         Dictionary<int, double> BuildBoundaryDictions(List<float> x_list, List<float> y_list, double lambda, double gamma, int mode)
         {
