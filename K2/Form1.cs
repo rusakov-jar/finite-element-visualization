@@ -533,7 +533,25 @@ namespace K2
 
         private void button_solve_Click(object sender, EventArgs e)
         {
-            FEMSolve();
+            if (XSplits == null)
+            {
+                MessageBox.Show("Не задана расчётная область");
+            }
+            if (XSplits != null)
+            {
+                FEMSolve();
+                if (Application.OpenForms["ViewResultForm"] == null)
+                {
+                    // Создаём новый экземпляр формы, передавая ссылку на текущую (this)
+                    ViewResultForm glForm = new ViewResultForm(this);
+                    glForm.Show();
+                }
+                else
+                {
+                    Application.OpenForms["ViewResultForm"].Activate();
+                }
+            }
+
             panel1.Invalidate();
             panel1.Update();
         }
@@ -1026,16 +1044,6 @@ namespace K2
             solution = CGSolver.Solve(multiply, assembler.globalB);
             // запись решения в файл
             WriteResults(f_mode);
-            if (Application.OpenForms["ViewResultForm"] == null)
-            {
-                // Создаём новый экземпляр формы, передавая ссылку на текущую (this)
-                ViewResultForm glForm = new ViewResultForm(this);
-                glForm.Show();
-            }
-            else
-            {
-                Application.OpenForms["ViewResultForm"].Activate();
-            }
         }
         Dictionary<int, double> BuildBoundaryDictions(List<float> x_list, List<float> y_list, double lambda, double gamma, int mode)
         {
