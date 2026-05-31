@@ -1,33 +1,53 @@
 ﻿using SharpGL;
 using System;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace K2
 {
     public partial class ViewResultForm : Form
     {
-        private Form1 _mainForm;
+        Form1 _mainForm;
 
-        private float cameraX = 0.0f;
-        private float cameraY = 80.0f;
-        private float cameraZ = 0.0f;
+        float cameraX = 0.0f;
+        float cameraY = 80.0f;
+        float cameraZ = 0.0f;
 
-        private float targetX = 50.0f;
-        private float targetY = 0.0f;
-        private float targetZ = 50.0f;
+        float targetX = 50.0f;
+        float targetY = 0.0f;
+        float targetZ = 50.0f;
 
-        private float upX = 0.0f;
-        private float upY = 1.0f;
-        private float upZ = 0.0f;
+        float upX = 0.0f;
+        float upY = 1.0f;
+        float upZ = 0.0f;
 
         // Углы для вращения мышью
-        private float yaw = 45.0f;    // поворот влево/вправо
-        private float pitch = -45.0f;   // наклон вверх/вниз
+        float yaw = 45.0f;    // поворот влево/вправо
+        float pitch = -45.0f;   // наклон вверх/вниз
 
         // Управление мышью
-        private bool mouseCaptured = false;
-        private System.Drawing.Point lastMousePos;
-        private float mouseSensitivity = 0.3f;
+        bool mouseCaptured = false;
+        System.Drawing.Point lastMousePos;
+        float mouseSensitivity = 0.3f;
+
+        bool keyW = false;
+        bool keyA = false;
+        bool keyS = false;
+        bool keyD = false;
+        bool keyQ = false;
+        bool keyE = false;
+
+        // Скорость перемещения
+        float moveSpeed = 30.0f;
+
+        // Для плавного движения (deltaTime)
+        DateTime lastFrameTime;
+
+        // Настройки нормализации высоты
+        float targetMinHeight = 0.0f;   // минимальная высота после нормализации
+        float targetMaxHeight = 100.0f;  // максимальная высота после нормализации
+
+        bool no_normalize = false;
 
 
         public ViewResultForm(Form1 mainForm)
@@ -41,7 +61,19 @@ namespace K2
 
             openGLDrawingArea.MouseDown += OpenGLDrawingArea_MouseDown;
             openGLDrawingArea.MouseMove += OpenGLDrawingArea_MouseMove;
-            openGLDrawingArea.MouseUp += OpenGLDrawingArea_MouseUp;
+            openGLDrawingArea.MouseUp += OpenGLDrawingArea_MouseUp;// Подписка на клавиатуру
+
+            this.KeyDown += ViewResultForm_KeyDown;
+            this.KeyUp += ViewResultForm_KeyUp;
+
+            // Разрешаем форме получать события клавиатуры
+            this.KeyPreview = true;
+
+            // Для расчёта времени между кадрами
+            lastFrameTime = DateTime.Now;
+
+
+
 
             this.Load += (s, e) => openGLDrawingArea_Resized(openGLDrawingArea, EventArgs.Empty);
         }
@@ -69,6 +101,16 @@ namespace K2
 
         private void openGLDrawingArea_OpenGLDraw(object sender, RenderEventArgs args)
         {
+            // Расчёт времени между кадрами
+            DateTime now = DateTime.Now;
+            float deltaTime = (float)(now - lastFrameTime).TotalSeconds;
+            if (deltaTime > 0.1f) deltaTime = 0.1f;
+            lastFrameTime = now;
+
+            // ДВИЖЕНИЕ КАМЕРЫ (на основе нажатых клавиш)
+            UpdateCameraPosition(deltaTime);
+
+            // ВРАЩЕНИЕ КАМЕРЫ (на основе углов от мыши)
             UpdateCameraDirection();
 
             OpenGL gl = openGLDrawingArea.OpenGL;
@@ -89,10 +131,11 @@ namespace K2
             gl.Color(0.2f, 0.8f, 0.3f);
 
             gl.Vertex(0.0f, 0.0f, 0.0f);
-            gl.Vertex(0.0f, 0.0f, 100.0f);     // Поменяли местами
+            gl.Vertex(0.0f, 0.0f, 100.0f);
             gl.Vertex(100.0f, 0.0f, 100.0f);
-            gl.Vertex(100.0f, 0.0f, 0.0f);     // Поменяли местами
+            gl.Vertex(100.0f, 0.0f, 0.0f);
             gl.End();
+            DrawRealSurface(gl);
         }
 
         private void UpdateCameraDirection()
@@ -135,8 +178,6 @@ namespace K2
                 if (pitch > 89.0f) pitch = 89.0f;
                 if (pitch < -89.0f) pitch = -89.0f;
 
-                //UpdateCameraDirection();
-
                 lastMousePos = e.Location;
                 openGLDrawingArea.Invalidate();
             }
@@ -149,6 +190,212 @@ namespace K2
                 mouseCaptured = false;
                 openGLDrawingArea.Cursor = Cursors.Default;
             }
+        }
+
+        private void UpdateCameraPosition(float deltaTime)
+        {
+            // Вычисляем векторы направления камеры
+            float frontX = targetX - cameraX;
+            float frontY = targetY - cameraY;
+            float frontZ = targetZ - cameraZ;
+
+            // Нормализуем вектор направления
+            float len = (float)Math.Sqrt(frontX * frontX + frontY * frontY + frontZ * frontZ);
+            if (len > 0.0001f)
+            {
+                frontX /= len;
+                frontY /= len;
+                frontZ /= len;
+            }
+
+            // Вычисляем правый вектор (перпендикулярно направлению и вектору вверх)
+            float rightX = frontY * upZ - frontZ * upY;
+            float rightY = frontZ * upX - frontX * upZ;
+            float rightZ = frontX * upY - frontY * upX;
+
+            // Нормализуем правый вектор
+            len = (float)Math.Sqrt(rightX * rightX + rightY * rightY + rightZ * rightZ);
+            if (len > 0.0001f)
+            {
+                rightX /= len;
+                rightY /= len;
+                rightZ /= len;
+            }
+
+            // Перемещение
+            float velocity = moveSpeed * deltaTime;
+
+            if (keyW) // Вперёд
+            {
+                cameraX += frontX * velocity;
+                cameraY += frontY * velocity;
+                cameraZ += frontZ * velocity;
+            }
+            if (keyS) // Назад
+            {
+                cameraX -= frontX * velocity;
+                cameraY -= frontY * velocity;
+                cameraZ -= frontZ * velocity;
+            }
+            if (keyD) // Вправо
+            {
+                cameraX += rightX * velocity;
+                cameraY += rightY * velocity;
+                cameraZ += rightZ * velocity;
+            }
+            if (keyA) // Влево
+            {
+                cameraX -= rightX * velocity;
+                cameraY -= rightY * velocity;
+                cameraZ -= rightZ * velocity;
+            }
+            if (keyQ) // Подъём
+            {
+                cameraY += velocity;
+            }
+            if (keyE) // Опускание
+            {
+                cameraY -= velocity;
+            }
+        }
+
+        private void ViewResultForm_KeyDown(object sender, KeyEventArgs e)
+        {
+            switch (e.KeyCode)
+            {
+                case Keys.W: keyW = true; break;
+                case Keys.A: keyA = true; break;
+                case Keys.S: keyS = true; break;
+                case Keys.D: keyD = true; break;
+                case Keys.Q: keyQ = true; break;
+                case Keys.E: keyE = true; break;
+            }
+        }
+
+        private void ViewResultForm_KeyUp(object sender, KeyEventArgs e)
+        {
+            switch (e.KeyCode)
+            {
+                case Keys.W: keyW = false; break;
+                case Keys.A: keyA = false; break;
+                case Keys.S: keyS = false; break;
+                case Keys.D: keyD = false; break;
+                case Keys.Q: keyQ = false; break;
+                case Keys.E: keyE = false; break;
+            }
+        }
+
+        private void DrawRealSurface(OpenGL gl)
+        {
+            var xNodes = _mainForm.global_net_x;
+            var zNodes = _mainForm.global_net_y;
+            var flatSolution = _mainForm.solution;
+
+            if (xNodes == null || zNodes == null || flatSolution == null) return;
+
+            int nx = xNodes.Count;
+            int nz = zNodes.Count;
+
+            float GetRawHeight(int i, int j) => (float)flatSolution[i * nx + j];
+
+            // Находим min и max высоты
+            float rawMinY = (float)flatSolution.Min(), rawMaxY = (float)flatSolution.Max();
+
+            if (rawMinY != 0)
+            {
+                if (Math.Abs(rawMaxY / rawMinY - 1) < 0.0001f) no_normalize = true;
+            }
+
+
+            // Рисуем залитые квадраты
+            for (int i = 0; i < nz - 1; i++)
+            {
+                float z1 = zNodes[i];
+                float z2 = zNodes[i + 1];
+
+                for (int j = 0; j < nx - 1; j++)
+                {
+                    float x1 = xNodes[j];
+                    float x2 = xNodes[j + 1];
+
+                    float rawY11 = GetRawHeight(i, j);
+                    float rawY12 = GetRawHeight(i, j + 1);
+                    float rawY21 = GetRawHeight(i + 1, j);
+                    float rawY22 = GetRawHeight(i + 1, j + 1);
+
+                    double y11 = NormalizeHeight(rawY11, rawMinY, rawMaxY);
+                    double y12 = NormalizeHeight(rawY12, rawMinY, rawMaxY);
+                    double y21 = NormalizeHeight(rawY21, rawMinY, rawMaxY);
+                    double y22 = NormalizeHeight(rawY22, rawMinY, rawMaxY);
+
+                    gl.Begin(OpenGL.GL_QUADS);
+
+                    float t = (rawY11 - rawMinY) / (rawMaxY - rawMinY);
+                    gl.Color(t, 1 - Math.Abs(t - 0.5f) * 2, 1.0f - t);
+                    gl.Vertex(x1, y11, z1);
+
+                    t = (rawY21 - rawMinY) / (rawMaxY - rawMinY);
+                    gl.Color(t, 1 - Math.Abs(t - 0.5f) * 2, 1.0f - t);
+                    gl.Vertex(x1, y21, z2);
+
+                    t = (rawY22 - rawMinY) / (rawMaxY - rawMinY);
+                    gl.Color(t, 1 - Math.Abs(t - 0.5f) * 2, 1.0f - t);
+                    gl.Vertex(x2, y22, z2);
+
+                    t = (rawY12 - rawMinY) / (rawMaxY - rawMinY);
+                    gl.Color(t, 1 - Math.Abs(t - 0.5f) * 2, 1.0f - t);
+                    gl.Vertex(x2, y12, z1);
+                    gl.End();
+                }
+            }
+
+            // отрисовка сетки
+            gl.Disable(OpenGL.GL_DEPTH_TEST);
+            gl.Color(0.0f, 0.0f, 0.0f);
+            gl.LineWidth(2.0f);
+
+            for (int i = 0; i < nz; i++)
+            {
+                float z = zNodes[i];
+                gl.Begin(OpenGL.GL_LINE_STRIP);
+                for (int j = 0; j < nx; j++)
+                {
+                    float x = xNodes[j];
+                    float y = (float)NormalizeHeight(GetRawHeight(i, j), rawMinY, rawMaxY);
+                    gl.Vertex(x, y, z);
+                }
+                gl.End();
+            }
+
+            for (int j = 0; j < nx; j++)
+            {
+                float x = xNodes[j];
+                gl.Begin(OpenGL.GL_LINE_STRIP);
+                for (int i = 0; i < nz; i++)
+                {
+                    float z = zNodes[i];
+                    float y = (float)NormalizeHeight(GetRawHeight(i, j), rawMinY, rawMaxY);
+                    gl.Vertex(x, y, z);
+                }
+                gl.End();
+            }
+
+            gl.Enable(OpenGL.GL_DEPTH_TEST);
+        }
+
+        // Функция нормализации
+        double NormalizeHeight(double rawVal, double min, double max)
+        {
+            double t;
+            if (no_normalize)
+            {
+                t = 0.5f;
+            }
+            else
+            {
+                t = (rawVal - min) / (max - min);
+            }
+            return targetMinHeight + t * (targetMaxHeight - targetMinHeight);
         }
     }
 }
