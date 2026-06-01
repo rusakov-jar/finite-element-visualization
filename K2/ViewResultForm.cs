@@ -107,10 +107,8 @@ namespace K2
             if (deltaTime > 0.1f) deltaTime = 0.1f;
             lastFrameTime = now;
 
-            // ДВИЖЕНИЕ КАМЕРЫ (на основе нажатых клавиш)
             UpdateCameraPosition(deltaTime);
 
-            // ВРАЩЕНИЕ КАМЕРЫ (на основе углов от мыши)
             UpdateCameraDirection();
 
             OpenGL gl = openGLDrawingArea.OpenGL;
@@ -149,7 +147,6 @@ namespace K2
             float frontY = (float)(Math.Sin(pitchRad));
             float frontZ = (float)(Math.Sin(yawRad) * Math.Cos(pitchRad));
 
-            // Куда смотрим = позиция камеры + направление
             targetX = cameraX + frontX;
             targetY = cameraY + frontY;
             targetZ = cameraZ + frontZ;
@@ -308,6 +305,7 @@ namespace K2
 
 
             // Рисуем залитые квадраты
+            gl.Begin(OpenGL.GL_QUADS);
             for (int i = 0; i < nz - 1; i++)
             {
                 float z1 = zNodes[i];
@@ -328,7 +326,6 @@ namespace K2
                     double y21 = NormalizeHeight(rawY21, rawMinY, rawMaxY);
                     double y22 = NormalizeHeight(rawY22, rawMinY, rawMaxY);
 
-                    gl.Begin(OpenGL.GL_QUADS);
 
                     float t = (rawY11 - rawMinY) / (rawMaxY - rawMinY);
                     gl.Color(t, 1 - Math.Abs(t - 0.5f) * 2, 1.0f - t);
@@ -345,40 +342,50 @@ namespace K2
                     t = (rawY12 - rawMinY) / (rawMaxY - rawMinY);
                     gl.Color(t, 1 - Math.Abs(t - 0.5f) * 2, 1.0f - t);
                     gl.Vertex(x2, y12, z1);
-                    gl.End();
                 }
             }
+            gl.End();
 
             // отрисовка сетки
+
             gl.Disable(OpenGL.GL_DEPTH_TEST);
             gl.Color(0.0f, 0.0f, 0.0f);
             gl.LineWidth(2.0f);
 
+            gl.Begin(OpenGL.GL_LINES);
+
+            // Линии вдоль X (горизонтальные)
             for (int i = 0; i < nz; i++)
             {
                 float z = zNodes[i];
-                gl.Begin(OpenGL.GL_LINE_STRIP);
-                for (int j = 0; j < nx; j++)
+                for (int j = 0; j < nx - 1; j++)
                 {
-                    float x = xNodes[j];
-                    float y = (float)NormalizeHeight(GetRawHeight(i, j), rawMinY, rawMaxY);
-                    gl.Vertex(x, y, z);
+                    float x1 = xNodes[j];
+                    float x2 = xNodes[j + 1];
+                    float y1 = (float)NormalizeHeight(GetRawHeight(i, j), rawMinY, rawMaxY);
+                    float y2 = (float)NormalizeHeight(GetRawHeight(i, j + 1), rawMinY, rawMaxY);
+
+                    gl.Vertex(x1, y1, z);
+                    gl.Vertex(x2, y2, z);
                 }
-                gl.End();
             }
 
+            // Линии вдоль Z (вертикальные)
             for (int j = 0; j < nx; j++)
             {
                 float x = xNodes[j];
-                gl.Begin(OpenGL.GL_LINE_STRIP);
-                for (int i = 0; i < nz; i++)
+                for (int i = 0; i < nz - 1; i++)
                 {
-                    float z = zNodes[i];
-                    float y = (float)NormalizeHeight(GetRawHeight(i, j), rawMinY, rawMaxY);
-                    gl.Vertex(x, y, z);
+                    float z1 = zNodes[i];
+                    float z2 = zNodes[i + 1];
+                    float y1 = (float)NormalizeHeight(GetRawHeight(i, j), rawMinY, rawMaxY);
+                    float y2 = (float)NormalizeHeight(GetRawHeight(i + 1, j), rawMinY, rawMaxY);
+
+                    gl.Vertex(x, y1, z1);
+                    gl.Vertex(x, y2, z2);
                 }
-                gl.End();
             }
+            gl.End();
 
             gl.Enable(OpenGL.GL_DEPTH_TEST);
         }

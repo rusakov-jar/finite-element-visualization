@@ -43,7 +43,7 @@
             this.openGLDrawingArea.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.openGLDrawingArea.Name = "openGLDrawingArea";
             this.openGLDrawingArea.OpenGLVersion = SharpGL.Version.OpenGLVersion.OpenGL2_1;
-            this.openGLDrawingArea.RenderContextType = SharpGL.RenderContextType.DIBSection;
+            this.openGLDrawingArea.RenderContextType = SharpGL.RenderContextType.FBO;
             this.openGLDrawingArea.RenderTrigger = SharpGL.RenderTrigger.TimerBased;
             this.openGLDrawingArea.Size = new System.Drawing.Size(424, 341);
             this.openGLDrawingArea.TabIndex = 0;
