@@ -1,5 +1,6 @@
 ﻿using SharpGL;
 using System;
+using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -74,7 +75,7 @@ namespace K2
 
 
 
-
+            this.Resize += (s, e) => panelLegend.Invalidate();
             this.Load += (s, e) => openGLDrawingArea_Resized(openGLDrawingArea, EventArgs.Empty);
         }
 
@@ -403,6 +404,37 @@ namespace K2
                 t = (rawVal - min) / (max - min);
             }
             return targetMinHeight + t * (targetMaxHeight - targetMinHeight);
+        }
+
+        private void panelLegend_Paint(object sender, PaintEventArgs e)
+        {
+            
+            Graphics g = e.Graphics;
+            int width = panelLegend.Width;
+            int height = panelLegend.Height;
+
+            // Рисуем градиентную полосу
+            for (int y = 0; y < height; y++)
+            {
+                float t = 1.0f - (float)y / height; // от max (верх) к min (низ)
+                int r = (int)(255 * t);
+                int gVal = (int)(255 * (1 - Math.Abs(t - 0.5f) * 2));
+                int b = (int)(255 * (1 - t));
+                using (Pen pen = new Pen(Color.FromArgb(r, gVal, b)))
+                {
+                    g.DrawLine(pen, 0, y, width, y);
+                }
+            }
+
+            // Рисуем рамку
+            g.DrawRectangle(Pens.Black, 0, 0, width - 1, height - 1);
+
+            // Подписываем min и max значения
+            float minValue = (float)_mainForm.solution.Min();
+            float maxValue = (float)_mainForm.solution.Max();
+            labelMax.Text = maxValue.ToString();
+            labelMin.Text = minValue.ToString();
+            labelMed.Text = ((maxValue + minValue) / 2).ToString();
         }
     }
 }
