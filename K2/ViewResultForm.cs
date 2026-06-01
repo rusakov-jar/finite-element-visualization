@@ -309,13 +309,13 @@ namespace K2
             gl.Begin(OpenGL.GL_QUADS);
             for (int i = 0; i < nz - 1; i++)
             {
-                float z1 = zNodes[i];
-                float z2 = zNodes[i + 1];
+                float z1 = ScaleZ(zNodes[i]);
+                float z2 = ScaleZ(zNodes[i + 1]);
 
                 for (int j = 0; j < nx - 1; j++)
                 {
-                    float x1 = xNodes[j];
-                    float x2 = xNodes[j + 1];
+                    float x1 = ScaleX(xNodes[j]);
+                    float x2 = ScaleX(xNodes[j + 1]);
 
                     float rawY11 = GetRawHeight(i, j);
                     float rawY12 = GetRawHeight(i, j + 1);
@@ -358,11 +358,11 @@ namespace K2
             // Линии вдоль X (горизонтальные)
             for (int i = 0; i < nz; i++)
             {
-                float z = zNodes[i];
+                float z = ScaleZ(zNodes[i]);
                 for (int j = 0; j < nx - 1; j++)
                 {
-                    float x1 = xNodes[j];
-                    float x2 = xNodes[j + 1];
+                    float x1 = ScaleX(xNodes[j]);
+                    float x2 = ScaleX(xNodes[j + 1]);
                     float y1 = (float)NormalizeHeight(GetRawHeight(i, j), rawMinY, rawMaxY);
                     float y2 = (float)NormalizeHeight(GetRawHeight(i, j + 1), rawMinY, rawMaxY);
 
@@ -374,11 +374,11 @@ namespace K2
             // Линии вдоль Z (вертикальные)
             for (int j = 0; j < nx; j++)
             {
-                float x = xNodes[j];
+                float x = ScaleX(xNodes[j]);
                 for (int i = 0; i < nz - 1; i++)
                 {
-                    float z1 = zNodes[i];
-                    float z2 = zNodes[i + 1];
+                    float z1 = ScaleZ(zNodes[i]);
+                    float z2 = ScaleZ(zNodes[i + 1]);
                     float y1 = (float)NormalizeHeight(GetRawHeight(i, j), rawMinY, rawMaxY);
                     float y2 = (float)NormalizeHeight(GetRawHeight(i + 1, j), rawMinY, rawMaxY);
 
@@ -435,6 +435,20 @@ namespace K2
             labelMax.Text = maxValue.ToString();
             labelMin.Text = minValue.ToString();
             labelMed.Text = ((maxValue + minValue) / 2).ToString();
+        }
+
+        private float ScaleX(float x)
+        {
+            float minX = _mainForm.global_net_x.Min();
+            float maxX = _mainForm.global_net_x.Max();
+            return (x - minX) / (maxX - minX) * 100.0f;
+        }
+
+        private float ScaleZ(float z)
+        {
+            float minZ = _mainForm.global_net_y.Min();
+            float maxZ = _mainForm.global_net_y.Max();
+            return (z - minZ) / (maxZ - minZ) * 100.0f;
         }
     }
 }
