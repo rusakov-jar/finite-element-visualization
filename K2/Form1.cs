@@ -19,21 +19,21 @@ namespace K2
 
         List<float> LXPoints; // точки разбиения большой сетки(сырые координаты)
         List<float> LYPoints;
-        List<float> global_net_x, global_net_y;
+        public List<float> global_net_x, global_net_y; // координаты линий итоговой сетки по осям
         float scale = 1;
         float initial_scale = 1;
         float orig_width;
         float orig_height;
         float orig_x1, orig_x2, orig_y1, orig_y2;
         FormSubAreaSettings f_set_sub = new FormSubAreaSettings();
-        List<float>[] XSplits; // разбиения по осям(сырые координаты)
-        List<float>[] YSplits;
+        public List<float>[] XSplits; // разбиения по осям(сырые координаты)
+        public List<float>[] YSplits;
         public string settings_str;
         public float eps, q1, q2;
         public string mode;
         bool show_subarea_border = true, show_triangle_border = true, show_element_border = true;
 
-        private double[] solution;
+        public double[] solution;
 
 
         public class SelectedCell
@@ -533,7 +533,25 @@ namespace K2
 
         private void button_solve_Click(object sender, EventArgs e)
         {
-            FEMSolve();
+            if (XSplits == null)
+            {
+                MessageBox.Show("Не задана расчётная область");
+            }
+            if (XSplits != null)
+            {
+                FEMSolve();
+                if (Application.OpenForms["ViewResultForm"] == null)
+                {
+                    // Создаём новый экземпляр формы, передавая ссылку на текущую (this)
+                    ViewResultForm glForm = new ViewResultForm(this);
+                    glForm.Show();
+                }
+                else
+                {
+                    Application.OpenForms["ViewResultForm"].Activate();
+                }
+            }
+
             panel1.Invalidate();
             panel1.Update();
         }
@@ -993,7 +1011,7 @@ namespace K2
 
             FEMAssembler assembler = new FEMAssembler(global_net_x.Count, global_net_y.Count);
             double lambda = 6, gamma = 1;
-            int f_mode = -1;
+            int f_mode = 2;
 
             // сборка глобальной матрицы
             for (int i = 0; i < global_net_y.Count - 1; i++)
