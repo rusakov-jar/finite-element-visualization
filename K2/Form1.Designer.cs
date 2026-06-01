@@ -106,6 +106,12 @@
             this.загрузитьToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.button_solve = new System.Windows.Forms.Button();
             this.panel4 = new System.Windows.Forms.Panel();
+            this.tableLayoutPanelLegendValues = new System.Windows.Forms.TableLayoutPanel();
+            this.labelMin = new System.Windows.Forms.Label();
+            this.labelMed = new System.Windows.Forms.Label();
+            this.labelMax = new System.Windows.Forms.Label();
+            this.panelLegend = new System.Windows.Forms.Panel();
+            this.buttonShow3D = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -116,6 +122,7 @@
             this.panel3.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.panel4.SuspendLayout();
+            this.tableLayoutPanelLegendValues.SuspendLayout();
             this.SuspendLayout();
             // 
             // panel1
@@ -424,7 +431,7 @@
             this.panel2.Controls.Add(this.panel1);
             this.panel2.Location = new System.Drawing.Point(251, 33);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(665, 704);
+            this.panel2.Size = new System.Drawing.Size(619, 704);
             this.panel2.TabIndex = 0;
             // 
             // groupBox2
@@ -819,7 +826,7 @@
             this.Scale.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.Scale.AutoSize = true;
             this.Scale.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Scale.Location = new System.Drawing.Point(210, 17);
+            this.Scale.Location = new System.Drawing.Point(312, 9);
             this.Scale.Name = "Scale";
             this.Scale.Size = new System.Drawing.Size(86, 20);
             this.Scale.TabIndex = 4;
@@ -829,7 +836,7 @@
             // 
             this.button4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.button4.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.button4.Location = new System.Drawing.Point(310, 5);
+            this.button4.Location = new System.Drawing.Point(419, 1);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(144, 34);
             this.button4.TabIndex = 5;
@@ -840,7 +847,7 @@
             // textBox3
             // 
             this.textBox3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.textBox3.Location = new System.Drawing.Point(473, 16);
+            this.textBox3.Location = new System.Drawing.Point(588, 9);
             this.textBox3.Name = "textBox3";
             this.textBox3.Size = new System.Drawing.Size(100, 22);
             this.textBox3.TabIndex = 6;
@@ -850,7 +857,7 @@
             // 
             this.button5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.button5.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.button5.Location = new System.Drawing.Point(590, 5);
+            this.button5.Location = new System.Drawing.Point(707, 0);
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(109, 35);
             this.button5.TabIndex = 7;
@@ -873,7 +880,7 @@
             // 
             this.buttonSettings.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.buttonSettings.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.buttonSettings.Location = new System.Drawing.Point(807, 3);
+            this.buttonSettings.Location = new System.Drawing.Point(886, 3);
             this.buttonSettings.Name = "buttonSettings";
             this.buttonSettings.Size = new System.Drawing.Size(96, 35);
             this.buttonSettings.TabIndex = 9;
@@ -889,7 +896,7 @@
             this.fileToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(924, 28);
+            this.menuStrip1.Size = new System.Drawing.Size(1007, 28);
             this.menuStrip1.TabIndex = 10;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -937,6 +944,7 @@
             // panel4
             // 
             this.panel4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.panel4.Controls.Add(this.buttonShow3D);
             this.panel4.Controls.Add(this.buttonSettings);
             this.panel4.Controls.Add(this.button_solve);
             this.panel4.Controls.Add(this.button4);
@@ -945,15 +953,90 @@
             this.panel4.Controls.Add(this.button5);
             this.panel4.Location = new System.Drawing.Point(4, 761);
             this.panel4.Name = "panel4";
-            this.panel4.Size = new System.Drawing.Size(912, 40);
+            this.panel4.Size = new System.Drawing.Size(991, 40);
             this.panel4.TabIndex = 22;
+            // 
+            // tableLayoutPanelLegendValues
+            // 
+            this.tableLayoutPanelLegendValues.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tableLayoutPanelLegendValues.ColumnCount = 1;
+            this.tableLayoutPanelLegendValues.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanelLegendValues.Controls.Add(this.labelMin, 0, 2);
+            this.tableLayoutPanelLegendValues.Controls.Add(this.labelMed, 0, 1);
+            this.tableLayoutPanelLegendValues.Controls.Add(this.labelMax, 0, 0);
+            this.tableLayoutPanelLegendValues.Location = new System.Drawing.Point(907, 37);
+            this.tableLayoutPanelLegendValues.Name = "tableLayoutPanelLegendValues";
+            this.tableLayoutPanelLegendValues.RowCount = 3;
+            this.tableLayoutPanelLegendValues.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10F));
+            this.tableLayoutPanelLegendValues.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 80F));
+            this.tableLayoutPanelLegendValues.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10F));
+            this.tableLayoutPanelLegendValues.Size = new System.Drawing.Size(88, 700);
+            this.tableLayoutPanelLegendValues.TabIndex = 24;
+            // 
+            // labelMin
+            // 
+            this.labelMin.AutoSize = true;
+            this.labelMin.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.labelMin.Location = new System.Drawing.Point(3, 684);
+            this.labelMin.Name = "labelMin";
+            this.labelMin.Size = new System.Drawing.Size(82, 16);
+            this.labelMin.TabIndex = 2;
+            this.labelMin.Text = "labelMin";
+            this.labelMin.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // labelMed
+            // 
+            this.labelMed.AutoSize = true;
+            this.labelMed.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.labelMed.Location = new System.Drawing.Point(3, 70);
+            this.labelMed.Name = "labelMed";
+            this.labelMed.Size = new System.Drawing.Size(82, 560);
+            this.labelMed.TabIndex = 1;
+            this.labelMed.Text = "labelMed";
+            this.labelMed.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // labelMax
+            // 
+            this.labelMax.AutoSize = true;
+            this.labelMax.Dock = System.Windows.Forms.DockStyle.Top;
+            this.labelMax.Location = new System.Drawing.Point(3, 0);
+            this.labelMax.Name = "labelMax";
+            this.labelMax.Size = new System.Drawing.Size(82, 16);
+            this.labelMax.TabIndex = 0;
+            this.labelMax.Text = "labelMax";
+            this.labelMax.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // panelLegend
+            // 
+            this.panelLegend.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.panelLegend.BackColor = System.Drawing.SystemColors.ControlLightLight;
+            this.panelLegend.Location = new System.Drawing.Point(872, 37);
+            this.panelLegend.Name = "panelLegend";
+            this.panelLegend.Size = new System.Drawing.Size(29, 700);
+            this.panelLegend.TabIndex = 23;
+            this.panelLegend.Paint += new System.Windows.Forms.PaintEventHandler(this.panelLegend_Paint);
+            // 
+            // buttonShow3D
+            // 
+            this.buttonShow3D.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.buttonShow3D.Location = new System.Drawing.Point(133, 4);
+            this.buttonShow3D.Name = "buttonShow3D";
+            this.buttonShow3D.Size = new System.Drawing.Size(113, 34);
+            this.buttonShow3D.TabIndex = 22;
+            this.buttonShow3D.Text = "Показать";
+            this.buttonShow3D.UseVisualStyleBackColor = true;
+            this.buttonShow3D.Click += new System.EventHandler(this.buttonShow3D_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
-            this.ClientSize = new System.Drawing.Size(924, 814);
+            this.ClientSize = new System.Drawing.Size(1007, 814);
+            this.Controls.Add(this.tableLayoutPanelLegendValues);
+            this.Controls.Add(this.panelLegend);
             this.Controls.Add(this.panel4);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel3);
@@ -982,6 +1065,8 @@
             this.menuStrip1.PerformLayout();
             this.panel4.ResumeLayout(false);
             this.panel4.PerformLayout();
+            this.tableLayoutPanelLegendValues.ResumeLayout(false);
+            this.tableLayoutPanelLegendValues.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1066,6 +1151,12 @@
         private System.Windows.Forms.ToolStripMenuItem загрузитьToolStripMenuItem;
         private System.Windows.Forms.Button button_solve;
         private System.Windows.Forms.Panel panel4;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanelLegendValues;
+        private System.Windows.Forms.Label labelMin;
+        private System.Windows.Forms.Label labelMed;
+        private System.Windows.Forms.Label labelMax;
+        private System.Windows.Forms.Panel panelLegend;
+        private System.Windows.Forms.Button buttonShow3D;
     }
 }
 
