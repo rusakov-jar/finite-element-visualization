@@ -12,8 +12,8 @@ namespace K2
     {
         public double[] globalB;
 
-        public SparseMatrix sparseMatrix;
-        private int Nx, Ny;
+        public SparseMatrix sparse_matrix;
+        private int Nx, Ny, basis_type;
 
 
         double[,] m_local;
@@ -23,11 +23,12 @@ namespace K2
         // порядок обхода снизу вверх слева направо, лн, пн, лв, пв
         // порядок глобальной нумерации тоже снизу вверх, слева направо.
 
-        public FEMAssembler(int Nx, int Ny)
+        public FEMAssembler(int Nx, int Ny, int b_type = 1)
         {
             this.Nx = Nx;
             this.Ny = Ny;
-            sparseMatrix = BuildPortrait(Nx, Ny);
+            this.basis_type = b_type;
+            sparse_matrix = BuildPortrait(Nx, Ny);
             globalB = new double[Nx * Ny];
         }
 
@@ -181,12 +182,12 @@ namespace K2
 
                     if (gi == gj)
                     {
-                        sparseMatrix.di[gi] += val;
+                        sparse_matrix.di[gi] += val;
                     }
                     else // gi > gj
                     {
-                        int idx = GetAlIndex(gi, gj, Nx, sparseMatrix.ia);
-                        sparseMatrix.al[idx] += val;
+                        int idx = GetAlIndex(gi, gj, Nx, sparse_matrix.ia);
+                        sparse_matrix.al[idx] += val;
                     }
                 }
                 globalB[gi] += b_local[i];
@@ -203,15 +204,15 @@ namespace K2
                 // 1. Обрабатываем нижний треугольник (соседи col < node)
                 // Проходим по всем возможным соседям с меньшим номером
                 // и обнуляем их, модифицируя правую часть
-                int pos = sparseMatrix.ia[node];
+                int pos = sparse_matrix.ia[node];
 
                 // Нижний левый
                 if (i > 0 && j > 0)
                 {
                     int col = node - Nx - 1;
                     int idx = pos;
-                    globalB[col] -= sparseMatrix.al[idx] * value;
-                    sparseMatrix.al[idx] = 0;
+                    globalB[col] -= sparse_matrix.al[idx] * value;
+                    sparse_matrix.al[idx] = 0;
                     pos++;
                 }
                 // Нижний
@@ -219,8 +220,8 @@ namespace K2
                 {
                     int col = node - Nx;
                     int idx = pos;
-                    globalB[col] -= sparseMatrix.al[idx] * value;
-                    sparseMatrix.al[idx] = 0;
+                    globalB[col] -= sparse_matrix.al[idx] * value;
+                    sparse_matrix.al[idx] = 0;
                     pos++;
                 }
                 // Нижний правый
@@ -228,8 +229,8 @@ namespace K2
                 {
                     int col = node - Nx + 1;
                     int idx = pos;
-                    globalB[col] -= sparseMatrix.al[idx] * value;
-                    sparseMatrix.al[idx] = 0;
+                    globalB[col] -= sparse_matrix.al[idx] * value;
+                    sparse_matrix.al[idx] = 0;
                     pos++;
                 }
                 // Левый
@@ -237,8 +238,8 @@ namespace K2
                 {
                     int col = node - 1;
                     int idx = pos;
-                    globalB[col] -= sparseMatrix.al[idx] * value;
-                    sparseMatrix.al[idx] = 0;
+                    globalB[col] -= sparse_matrix.al[idx] * value;
+                    sparse_matrix.al[idx] = 0;
                     pos++;
                 }
 
@@ -250,37 +251,37 @@ namespace K2
                 if (i < Ny - 1 && j < Nx - 1)
                 {
                     int row = node + Nx + 1;
-                    int idx = GetAlIndex(row, node, Nx, sparseMatrix.ia);
-                    globalB[row] -= sparseMatrix.al[idx] * value;
-                    sparseMatrix.al[idx] = 0;
+                    int idx = GetAlIndex(row, node, Nx, sparse_matrix.ia);
+                    globalB[row] -= sparse_matrix.al[idx] * value;
+                    sparse_matrix.al[idx] = 0;
                 }
                 // Как нижний для строки (node + Nx)
                 if (i < Ny - 1)
                 {
                     int row = node + Nx;
-                    int idx = GetAlIndex(row, node, Nx, sparseMatrix.ia);
-                    globalB[row] -= sparseMatrix.al[idx] * value;
-                    sparseMatrix.al[idx] = 0;
+                    int idx = GetAlIndex(row, node, Nx, sparse_matrix.ia);
+                    globalB[row] -= sparse_matrix.al[idx] * value;
+                    sparse_matrix.al[idx] = 0;
                 }
                 // Как нижний правый для строки (node + Nx - 1)
                 if (i < Ny - 1 && j > 0)
                 {
                     int row = node + Nx - 1;
-                    int idx = GetAlIndex(row, node, Nx, sparseMatrix.ia);
-                    globalB[row] -= sparseMatrix.al[idx] * value;
-                    sparseMatrix.al[idx] = 0;
+                    int idx = GetAlIndex(row, node, Nx, sparse_matrix.ia);
+                    globalB[row] -= sparse_matrix.al[idx] * value;
+                    sparse_matrix.al[idx] = 0;
                 }
                 // Как левый для строки (node + 1)
                 if (j < Nx - 1)
                 {
                     int row = node + 1;
-                    int idx = GetAlIndex(row, node, Nx, sparseMatrix.ia);
-                    globalB[row] -= sparseMatrix.al[idx] * value;
-                    sparseMatrix.al[idx] = 0;
+                    int idx = GetAlIndex(row, node, Nx, sparse_matrix.ia);
+                    globalB[row] -= sparse_matrix.al[idx] * value;
+                    sparse_matrix.al[idx] = 0;
                 }
 
                 // 3. Обнуляем диагональ и правую часть для самого узла
-                sparseMatrix.di[node] = 1;
+                sparse_matrix.di[node] = 1;
                 globalB[node] = value;
             }
         }
@@ -290,13 +291,13 @@ namespace K2
             int N = Nx * Ny;
             Array.Clear(y, 0, N);
             for (int i = 0; i < N; i++)
-                y[i] += sparseMatrix.di[i] * x[i];
+                y[i] += sparse_matrix.di[i] * x[i];
             for (int i = 0; i < N; i++)
             {
-                for (int k = sparseMatrix.ia[i]; k < sparseMatrix.ia[i + 1]; k++)
+                for (int k = sparse_matrix.ia[i]; k < sparse_matrix.ia[i + 1]; k++)
                 {
-                    int j = sparseMatrix.ja[k];
-                    double a_ij = sparseMatrix.al[k];
+                    int j = sparse_matrix.ja[k];
+                    double a_ij = sparse_matrix.al[k];
                     y[i] += a_ij * x[j];
                     y[j] += a_ij * x[i];
                 }
