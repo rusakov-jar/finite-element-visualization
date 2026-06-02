@@ -40,48 +40,59 @@ namespace K2
             public int[] ja;      // номера столбцов, размер k
         }
 
-        public static SparseMatrix BuildPortrait(int Nx, int Ny)
+        public static SparseMatrix BuildPortrait(int nx, int ny, int nodesPerElementX = 2, int nodesPerElementY = 2)
         {
-            int N = Nx * Ny;
-            var jaList = new List<int>();
-            int[] ia = new int[N + 1];
+            int N = nx * ny;
+            var jaSet = new SortedSet<int>[N];
+            for (int i = 0; i < N; i++)
+                jaSet[i] = new SortedSet<int>();
 
-            ia[0] = 0;
+            // Добавление связи (только нижний треугольник)
+            void AddLink(int row, int col)
+            {
+                if (row == col) return;
+                if (col < row)
+                    jaSet[row].Add(col);
+                else
+                    jaSet[col].Add(row);
+            }
+
+            // Цикл по элементам
+            // Элемент размера nodesPerElementX × nodesPerElementY узлов
+            for (int i = 0; i <= ny - nodesPerElementY; i++)
+            {
+                for (int j = 0; j <= nx - nodesPerElementX; j++)
+                {
+                    // Собираем глобальные индексы всех узлов элемента
+                    int[] elementNodes = new int[nodesPerElementX * nodesPerElementY];
+                    int idx = 0;
+                    for (int di = 0; di < nodesPerElementY; di++)
+                        for (int dj = 0; dj < nodesPerElementX; dj++)
+                            elementNodes[idx++] = (i + di) * nx + (j + dj);
+
+                    // Добавляем связи между всеми парами узлов
+                    for (int p = 0; p < elementNodes.Length; p++)
+                        for (int q = p + 1; q < elementNodes.Length; q++)
+                            AddLink(elementNodes[p], elementNodes[q]);
+                }
+            }
+
+            // Формируем ia и ja из jaSet
+            int[] ia = new int[N + 1];
+            List<int> jaList = new List<int>();
 
             for (int row = 0; row < N; row++)
             {
-                int i = row / Nx;  // индекс по Y (снизу вверх)
-                int j = row % Nx;  // индекс по X (слева направо)
-
-                var neighbors = new List<int>();
-
-                // Четыре смещения для соседей с меньшим номером
-                (int di, int dj)[] offsets = { (-1, 0), (0, -1), (-1, -1), (-1, 1) };
-
-                foreach (var (di, dj) in offsets)
-                {
-                    int ni = i + di;
-                    int nj = j + dj;
-
-                    if (ni >= 0 && ni < Ny && nj >= 0 && nj < Nx)
-                    {
-                        int col = ni * Nx + nj;
-                        if (col < row)
-                            neighbors.Add(col);
-                    }
-                }
-
-                neighbors.Sort();
-                jaList.AddRange(neighbors);
-                ia[row + 1] = jaList.Count;
+                ia[row] = jaList.Count;
+                foreach (int col in jaSet[row])
+                    jaList.Add(col);
             }
-
-            int k = jaList.Count;
+            ia[N] = jaList.Count;
 
             return new SparseMatrix
             {
                 di = new double[N],
-                al = new double[k],
+                al = new double[jaList.Count],
                 ia = ia,
                 ja = jaList.ToArray()
             };

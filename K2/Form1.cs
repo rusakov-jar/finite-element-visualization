@@ -59,6 +59,7 @@ namespace K2
             q1 = float.Parse(split_strs[1]);
             q2 = float.Parse(split_strs[2]);
             mode = split_strs[3];
+            this.Resize += (s, e) => panelLegend.Invalidate();
         }
 
         private void panel1_Paint(object sender, PaintEventArgs e)
@@ -68,7 +69,6 @@ namespace K2
             if (solution != null)
             {
                 DrawSolution(g);
-                panelLegend.Invalidate();
             }
             if (LXPoints != null && LYPoints != null && panel1.Visible)
             {
@@ -545,6 +545,7 @@ namespace K2
 
             panel1.Invalidate();
             panel1.Update();
+            panelLegend.Invalidate();
         }
 
         private void button_clear_Click(object sender, EventArgs e)
