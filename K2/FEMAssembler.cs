@@ -152,7 +152,7 @@ namespace K2
             }
             else if(basis_type == 3)
             {
-                // бикубические
+                BuildLocalBicubicMatrix(hx, hy, lambda, gamma, f);
             }
         }
 
@@ -259,30 +259,30 @@ namespace K2
             double factor = 1.0 / (3.0 * hx);
             double[,] Gx = new double[,]
             {
-                { factor *  7.0, factor * -8.0, factor *  1.0 },
-                { factor * -8.0, factor * 16.0, factor * -8.0 },
-                { factor *  1.0, factor * -8.0, factor *  7.0 }
+                {factor *  7, factor * -8, factor *  1},
+                {factor * -8, factor * 16, factor * -8},
+                {factor *  1, factor * -8, factor *  7}
             };
-            factor = 1.0 / (3.0 * hx);
+            factor = 1.0 / (3.0 * hy);
             double[,] Gy = new double[,]
             {
-                { factor *  7.0, factor * -8.0, factor *  1.0 },
-                { factor * -8.0, factor * 16.0, factor * -8.0 },
-                { factor *  1.0, factor * -8.0, factor *  7.0 }
+                {factor *  7, factor * -8, factor *  1},
+                {factor * -8, factor * 16, factor * -8},
+                {factor *  1, factor * -8, factor *  7}
             };
             factor = hx / 30.0;
             double[,] Mx = new double[,]
             {
-                { factor *  4.0, factor *  2.0, factor * -1.0 },
-                { factor *  2.0, factor * 16.0, factor *  2.0 },
-                { factor * -1.0, factor *  2.0, factor *  4.0 }
+                {factor *  4, factor *  2, factor * -1},
+                {factor *  2, factor * 16, factor *  2},
+                {factor * -1, factor *  2, factor *  4}
             };
             factor = hy / 30.0;
             double[,] My = new double[,]
             {
-                { factor *  4.0, factor *  2.0, factor * -1.0 },
-                { factor *  2.0, factor * 16.0, factor *  2.0 },
-                { factor * -1.0, factor *  2.0, factor *  4.0 }
+                {factor *  4, factor *  2, factor * -1},
+                {factor *  2, factor * 16, factor *  2},
+                {factor * -1, factor *  2, factor *  4}
             };
 
             g_local = new double[9, 9];
@@ -296,10 +296,67 @@ namespace K2
                 for (int j = 0; j < 9; j++)
                 {
                     int jy = j / 3, jx = j % 3;
+                    double M = Mx[ix, jx] * My[iy, jy];
                     g_local[i, j] = lambda * (Gx[ix, jx] * My[iy, jy] + Mx[ix, jx] * Gy[iy, jy]);
-                    m_local[i, j] = gamma * (Mx[ix, jx] * My[iy, jy]);
+                    m_local[i, j] = gamma * M;
 
-                    b_local[i] += m_local[i, j] * f[j];
+                    b_local[i] += M * f[j];
+                }
+            }
+        }
+
+        void BuildLocalBicubicMatrix(double hx, double hy, double lambda, double gamma, double[] f)
+        {
+            // Одномерные матрицы 4x4
+            double factor = 1.0 / (40.0 * hx);
+            double[,] Gx = new double[,]
+            {
+                { factor *  148, factor * -189, factor *   54, factor *  -13},
+                { factor * -189, factor *  432, factor * -297, factor *   54},
+                { factor *   54, factor * -297, factor *  432, factor * -189},
+                { factor *  -13, factor *   54, factor * -189, factor *  148}
+            };
+            factor = 1.0 / (40.0 * hy);
+            double[,] Gy = new double[,]
+            {
+                { factor *  148, factor * -189, factor *   54, factor *  -13},
+                { factor * -189, factor *  432, factor * -297, factor *   54},
+                { factor *   54, factor * -297, factor *  432, factor * -189},
+                { factor *  -13, factor *   54, factor * -189, factor *  148}
+            };
+            factor = hx / 1680.0;
+            double[,] Mx = new double[,]
+            {
+                { factor * 128, factor *  99, factor * -36, factor *  19},
+                { factor *  99, factor * 648, factor * -81, factor * -36},
+                { factor * -36, factor * -81, factor * 648, factor *  99},
+                { factor *  19, factor * -36, factor *  99, factor * 128}
+            };
+            factor = hy / 1680.0;
+            double[,] My = new double[,]
+            {
+                { factor * 128, factor *  99, factor * -36, factor *  19},
+                { factor *  99, factor * 648, factor * -81, factor * -36},
+                { factor * -36, factor * -81, factor * 648, factor *  99},
+                { factor *  19, factor * -36, factor *  99, factor * 128}
+            };
+
+            g_local = new double[16, 16];
+            m_local = new double[16, 16];
+            b_local = new double[16];
+
+            for (int i = 0; i < 16; i++)
+            {
+                int iy = i / 4, ix = i % 4;
+                b_local[i] = 0;
+                for (int j = 0; j < 16; j++)
+                {
+                    int jy = j / 4, jx = j % 4;
+                    double M = Mx[ix, jx] * My[iy, jy];
+                    g_local[i, j] = lambda * (Gx[ix, jx] * My[iy, jy] + Mx[ix, jx] * Gy[iy, jy]);
+                    m_local[i, j] = gamma * M;
+
+                    b_local[i] += M * f[j];
                 }
             }
         }
