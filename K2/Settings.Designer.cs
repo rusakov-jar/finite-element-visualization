@@ -44,7 +44,10 @@
             this.checkBoxShowNetLines = new System.Windows.Forms.CheckBox();
             this.checkBoxTriagLine = new System.Windows.Forms.CheckBox();
             this.checkBoxShowElementBorder = new System.Windows.Forms.CheckBox();
+            this.label7 = new System.Windows.Forms.Label();
+            this.BasisNumericUpDown = new System.Windows.Forms.NumericUpDown();
             ((System.ComponentModel.ISupportInitialize)(this.PresetNumericUpDown1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.BasisNumericUpDown)).BeginInit();
             this.SuspendLayout();
             // 
             // button_save
@@ -60,7 +63,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(13, 13);
+            this.label1.Location = new System.Drawing.Point(13, 19);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(30, 16);
             this.label1.TabIndex = 2;
@@ -68,14 +71,14 @@
             // 
             // textBoxEps
             // 
-            this.textBoxEps.Location = new System.Drawing.Point(106, 13);
+            this.textBoxEps.Location = new System.Drawing.Point(174, 13);
             this.textBoxEps.Name = "textBoxEps";
             this.textBoxEps.Size = new System.Drawing.Size(100, 22);
             this.textBoxEps.TabIndex = 3;
             // 
             // textBoxQ1
             // 
-            this.textBoxQ1.Location = new System.Drawing.Point(106, 46);
+            this.textBoxQ1.Location = new System.Drawing.Point(174, 46);
             this.textBoxQ1.Name = "textBoxQ1";
             this.textBoxQ1.Size = new System.Drawing.Size(100, 22);
             this.textBoxQ1.TabIndex = 5;
@@ -91,7 +94,7 @@
             // 
             // textBoxQ2
             // 
-            this.textBoxQ2.Location = new System.Drawing.Point(106, 83);
+            this.textBoxQ2.Location = new System.Drawing.Point(174, 83);
             this.textBoxQ2.Name = "textBoxQ2";
             this.textBoxQ2.Size = new System.Drawing.Size(100, 22);
             this.textBoxQ2.TabIndex = 7;
@@ -122,7 +125,7 @@
             this.listBoxMode.Items.AddRange(new object[] {
             "q",
             "h"});
-            this.listBoxMode.Location = new System.Drawing.Point(106, 116);
+            this.listBoxMode.Location = new System.Drawing.Point(174, 116);
             this.listBoxMode.Name = "listBoxMode";
             this.listBoxMode.Size = new System.Drawing.Size(100, 36);
             this.listBoxMode.TabIndex = 10;
@@ -144,22 +147,37 @@
             "м",
             "см",
             "мм"});
-            this.comboBox1.Location = new System.Drawing.Point(106, 180);
+            this.comboBox1.Location = new System.Drawing.Point(174, 180);
             this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(121, 24);
+            this.comboBox1.Size = new System.Drawing.Size(100, 24);
             this.comboBox1.TabIndex = 13;
             // 
             // PresetNumericUpDown1
             // 
-            this.PresetNumericUpDown1.Location = new System.Drawing.Point(106, 221);
+            this.PresetNumericUpDown1.Location = new System.Drawing.Point(174, 221);
+            this.PresetNumericUpDown1.Maximum = new decimal(new int[] {
+            4,
+            0,
+            0,
+            0});
+            this.PresetNumericUpDown1.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            -2147483648});
             this.PresetNumericUpDown1.Name = "PresetNumericUpDown1";
-            this.PresetNumericUpDown1.Size = new System.Drawing.Size(120, 22);
+            this.PresetNumericUpDown1.Size = new System.Drawing.Size(100, 22);
             this.PresetNumericUpDown1.TabIndex = 14;
+            this.PresetNumericUpDown1.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
             // 
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(13, 227);
+            this.label6.Location = new System.Drawing.Point(13, 221);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(55, 16);
             this.label6.TabIndex = 15;
@@ -168,7 +186,9 @@
             // checkBoxShowNetLines
             // 
             this.checkBoxShowNetLines.AutoSize = true;
-            this.checkBoxShowNetLines.Location = new System.Drawing.Point(272, 14);
+            this.checkBoxShowNetLines.Checked = true;
+            this.checkBoxShowNetLines.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBoxShowNetLines.Location = new System.Drawing.Point(387, 27);
             this.checkBoxShowNetLines.Name = "checkBoxShowNetLines";
             this.checkBoxShowNetLines.Size = new System.Drawing.Size(110, 20);
             this.checkBoxShowNetLines.TabIndex = 16;
@@ -178,7 +198,9 @@
             // checkBoxTriagLine
             // 
             this.checkBoxTriagLine.AutoSize = true;
-            this.checkBoxTriagLine.Location = new System.Drawing.Point(272, 40);
+            this.checkBoxTriagLine.Checked = true;
+            this.checkBoxTriagLine.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBoxTriagLine.Location = new System.Drawing.Point(387, 53);
             this.checkBoxTriagLine.Name = "checkBoxTriagLine";
             this.checkBoxTriagLine.Size = new System.Drawing.Size(112, 20);
             this.checkBoxTriagLine.TabIndex = 17;
@@ -188,18 +210,53 @@
             // checkBoxShowElementBorder
             // 
             this.checkBoxShowElementBorder.AutoSize = true;
-            this.checkBoxShowElementBorder.Location = new System.Drawing.Point(272, 66);
+            this.checkBoxShowElementBorder.Checked = true;
+            this.checkBoxShowElementBorder.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBoxShowElementBorder.Location = new System.Drawing.Point(387, 79);
             this.checkBoxShowElementBorder.Name = "checkBoxShowElementBorder";
             this.checkBoxShowElementBorder.Size = new System.Drawing.Size(138, 20);
             this.checkBoxShowElementBorder.TabIndex = 18;
             this.checkBoxShowElementBorder.Text = "Гран. элементов";
             this.checkBoxShowElementBorder.UseVisualStyleBackColor = true;
             // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(13, 263);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(153, 16);
+            this.label7.TabIndex = 19;
+            this.label7.Text = "Степень баз. функций";
+            // 
+            // BasisNumericUpDown
+            // 
+            this.BasisNumericUpDown.Location = new System.Drawing.Point(174, 263);
+            this.BasisNumericUpDown.Maximum = new decimal(new int[] {
+            3,
+            0,
+            0,
+            0});
+            this.BasisNumericUpDown.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.BasisNumericUpDown.Name = "BasisNumericUpDown";
+            this.BasisNumericUpDown.Size = new System.Drawing.Size(100, 22);
+            this.BasisNumericUpDown.TabIndex = 20;
+            this.BasisNumericUpDown.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            // 
             // Settings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(537, 651);
+            this.Controls.Add(this.BasisNumericUpDown);
+            this.Controls.Add(this.label7);
             this.Controls.Add(this.checkBoxShowElementBorder);
             this.Controls.Add(this.checkBoxTriagLine);
             this.Controls.Add(this.checkBoxShowNetLines);
@@ -219,6 +276,7 @@
             this.Name = "Settings";
             this.Text = "Settings";
             ((System.ComponentModel.ISupportInitialize)(this.PresetNumericUpDown1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.BasisNumericUpDown)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -241,5 +299,7 @@
         private System.Windows.Forms.CheckBox checkBoxShowNetLines;
         private System.Windows.Forms.CheckBox checkBoxTriagLine;
         private System.Windows.Forms.CheckBox checkBoxShowElementBorder;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.NumericUpDown BasisNumericUpDown;
     }
 }

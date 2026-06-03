@@ -41,7 +41,6 @@ namespace K2
         // Скорость перемещения
         float moveSpeed = 30.0f;
 
-        // Для плавного движения (deltaTime)
         DateTime lastFrameTime;
 
         // Настройки нормализации высоты
@@ -72,8 +71,6 @@ namespace K2
 
             // Для расчёта времени между кадрами
             lastFrameTime = DateTime.Now;
-
-
 
             this.Resize += (s, e) => panelLegend.Invalidate();
             this.Load += (s, e) => openGLDrawingArea_Resized(openGLDrawingArea, EventArgs.Empty);

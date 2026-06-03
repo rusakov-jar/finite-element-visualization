@@ -16,6 +16,7 @@ namespace K2
         public float q1, q2;
         public string mode;
         public bool show_net, show_triag_border, show_element_border;
+        public int preset_num, basis_num;
 
         public Settings()
         {
@@ -29,10 +30,14 @@ namespace K2
             if (!float.TryParse(tmp[1], out q1)) q1 = 0;
             if (!float.TryParse(tmp[2], out q2)) q2 = 10;
             mode = tmp[3];
+            if (!int.TryParse(tmp[4], out preset_num)) preset_num = 1;
+            if (!int.TryParse(tmp[5], out basis_num)) basis_num = 1;
             textBoxEps.Text = eps.ToString();
             textBoxQ1.Text = q1.ToString();
             textBoxQ2.Text = q2.ToString();
             listBoxMode.Text = mode;
+            BasisNumericUpDown.Value = basis_num;
+            PresetNumericUpDown1.Value = preset_num;
         }
 
         private void button_save_Click(object sender, EventArgs e)
@@ -41,7 +46,9 @@ namespace K2
             if (!float.TryParse(textBoxQ1.Text, out q1)) { q1 = 0; MessageBox.Show("Неверно задан q1. Применено значение по умолчанию"); }
             if (!float.TryParse(textBoxQ2.Text, out q2)) { q2 = 10; MessageBox.Show("Неверно задан q2. Применено значение по умолчанию"); }
             mode = listBoxMode.Text;
-            string txt = eps.ToString() + " " + q1.ToString() + " " + q2.ToString() + " " + mode;
+            preset_num = (int)PresetNumericUpDown1.Value;
+            basis_num = (int)BasisNumericUpDown.Value;
+            string txt = eps.ToString() + " " + q1.ToString() + " " + q2.ToString() + " " + mode + " " + preset_num + " " + basis_num;
             System.IO.File.WriteAllText("../../settings.txt", txt);
             textBoxQ1.Text = q1.ToString();
             textBoxQ2.Text = q2.ToString();

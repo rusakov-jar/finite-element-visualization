@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SharpGL.Enumerations;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -33,8 +34,9 @@ namespace K2
         public string mode;
         bool show_subarea_border = true, show_triangle_border = true, show_element_border = true;
 
-        public double[] solution;
+        int preset_num, basis_num;
 
+        public double[] solution;
 
         public class SelectedCell
         {
@@ -59,6 +61,8 @@ namespace K2
             q1 = float.Parse(split_strs[1]);
             q2 = float.Parse(split_strs[2]);
             mode = split_strs[3];
+            preset_num = int.Parse(split_strs[4]);
+            basis_num = int.Parse(split_strs[5]);
             this.Resize += (s, e) => panelLegend.Invalidate();
         }
 
@@ -519,7 +523,7 @@ namespace K2
 
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            String msg = "Версия интерфейса 0.0.2; Автор интерфейса Халафян Михаил; Версия расчётного блока 0.0.2; Автор расчётного блока Русаков Ярослав";
+            String msg = "НЕ ЗАПОЛНЕНО";
             MessageBox.Show(msg);
         }
 
@@ -540,7 +544,7 @@ namespace K2
             }
             if (XSplits != null)
             {
-                FEMSolve();
+                FEMSolve(basis_num, preset_num);
             }
 
             panel1.Invalidate();
@@ -597,6 +601,8 @@ namespace K2
             q1 = newForm.q1;
             q2 = newForm.q2;
             mode = newForm.mode;
+            preset_num = newForm.preset_num;
+            basis_num = newForm.basis_num;
             show_subarea_border = newForm.show_net;
             show_triangle_border = newForm.show_triag_border;
             show_element_border = newForm.show_element_border;
@@ -1027,61 +1033,30 @@ namespace K2
             textBox_Width.Text = $"[{orig_x1}; {orig_x2}]";
             textBox_Height.Text = $"[{orig_y1}; {orig_y2}]";
         }
-        void FEMSolve()
+        void FEMSolve(int deg, int f_mode) // степень базисных функций
         {
-            global_net_x = new List<float>();
-            for (int i = 0; i < XSplits.Count(); i++)
-            {
-                global_net_x.Add(LXPoints[i]);
-                if ((XSplits[i] != null))
-                {
-                    for (int j = 1; j < XSplits[i].Count - 1; j++)
-                    {
-                        global_net_x.Add(XSplits[i][j]);
-                    }
-                }
-            }
-            global_net_x.Add(LXPoints.Last());
+            global_net_x = BuildGlobalNet(LXPoints, XSplits, deg);
+            global_net_y = BuildGlobalNet(LYPoints, YSplits, deg); 
 
-            global_net_y = new List<float>();
-            for (int i = 0; i < YSplits.Count(); i++)
-            {
-                global_net_y.Add(LYPoints[i]);
-                if ((YSplits[i] != null))
-                {
-                    for (int j = 1; j < YSplits[i].Count - 1; j++)
-                    {
-                        global_net_y.Add(YSplits[i][j]);
-                    }
-                }
-            }
-            global_net_y.Add(LYPoints.Last());
-
-            FEMAssembler assembler = new FEMAssembler(global_net_x.Count, global_net_y.Count);
+            FEMAssembler assembler = new FEMAssembler(global_net_x.Count, global_net_y.Count, deg);
             double lambda = 6, gamma = 1;
-            int f_mode = 2;
 
             // сборка глобальной матрицы
-            for (int i = 0; i < global_net_y.Count - 1; i++)
+            int element_size = deg; // размер элемента в координатах узлов равен степени базисных полиномов элемента
+            for (int i = 0; i < global_net_y.Count - 1; i += deg)
             {
-                for (int j = 0; j < global_net_x.Count - 1; j++)
+                for (int j = 0; j < global_net_x.Count - 1; j += deg)
                 {
-                    double hx = global_net_x[j+1] - global_net_x[j], hy = global_net_y[i + 1] - global_net_y[i];
-                    double[] f = { FVal(global_net_x[j], global_net_y[i],lambda, gamma, f_mode), 
-                                   FVal(global_net_x[j + 1], global_net_y[i], lambda, gamma, f_mode), 
-                                   FVal(global_net_x[j], global_net_y[i + 1], lambda, gamma, f_mode), 
-                                   FVal(global_net_x[j + 1], global_net_y[i + 1], lambda, gamma, f_mode)};
+                    double hx = CalcH(global_net_x, j, deg), hy = CalcH(global_net_y, i, deg);
+                    double[] f = BuildLocalF(global_net_x,global_net_y, lambda, gamma, deg, j, i, f_mode);
                     assembler.buildLocal(hx, hy, lambda, gamma, f);
-                    int low_left = i * global_net_x.Count + j;
-                    int low_right = low_left + 1;
-                    int top_left = low_left + global_net_x.Count;
-                    int top_right = top_left + 1;
-                    assembler.addToGlobal(low_left, low_right, top_left, top_right);
+                    int[] indexes = BuildLocalToGlobalArray(global_net_x, global_net_y, deg, j, i);
+                    assembler.addToGlobal(indexes);
                 }
             }
             // применение граничных условий
             Dictionary<int, double> bounds = BuildBoundaryDictions(global_net_x, global_net_y, lambda, gamma, f_mode);
-            assembler.applyBoundaryCondition(bounds);
+            assembler.applyBoundaryCondition(bounds, deg);
             // Вызов решателя СЛАУ
             var multiply = new Func<double[], double[]>(vec =>
             {
@@ -1318,6 +1293,70 @@ namespace K2
                 writer.WriteLine($"Норма вектора погрешности: {err_norm:E6}");
                 writer.WriteLine($"Относительная погрешность решения: {err_norm/u_real_norm:E6}");
             }
+        }
+
+        private List<float> BuildGlobalNet(List<float> boundaries, List<float>[] splits, int degree) // сборка общего разбиения по оси с добавлением фиктивных узлов;deg = степень полинома базисной функции
+        {
+            var result = new List<float>();
+
+            for (int i = 0; i < splits.Count(); i++)
+            {
+                result.Add(boundaries[i]);
+                if ((splits[i] != null))
+                {
+                    for (int j = 1; j < splits[i].Count; j++)
+                    {
+                        float left = splits[i][j - 1], right = splits[i][j], step = (right - left) / degree, new_point;
+                        for (int k = 1; k < degree; k++)
+                        {
+                            new_point = left + step * k;
+                            result.Add(new_point);
+                        }
+                        result.Add(splits[i][j]);
+                    }
+                }
+            }
+            return result;
+        }
+
+        private float CalcH(List<float> net_points, int start_pos, int deg) // список узлов на оси, степень базисного полинома
+        {
+            float res = 0;
+            int end_pos = start_pos + deg; // конец элемента = начало элемента + 1 + степень полинома - 1.
+            res = net_points[end_pos] - net_points[start_pos];
+            return res;
+        }
+
+        private double[] BuildLocalF(List<float> x_net, List<float> y_net, double lambda, double gamma, int deg, int low_left_x, int low_left_y, int f_mode)
+        {
+            // количество узлов в элементе по каждой оси равно deg+1
+            int nodes_per_axis = deg + 1;
+            double[] res = new double[nodes_per_axis * nodes_per_axis];
+            for (int i = 0; i <= deg; i++)
+            {
+                for (int j = 0; j <= deg; j++)
+                {
+                    res[i * nodes_per_axis + j] = FVal(x_net[low_left_x + j], y_net[low_left_y + i], lambda, gamma, f_mode);
+                }
+            }
+            return res;
+        }
+
+        private int[] BuildLocalToGlobalArray(List<float> x_net, List<float> y_net, int deg, int low_left_x, int low_left_y)
+        {
+            // количество узлов в элементе по каждой оси равно deg+1
+            int nodes_per_axis = deg + 1;
+            // количество узлов в одной строке глобальной маттрицы = x_net.Count
+            int row_size = x_net.Count;
+            int[] res = new int[nodes_per_axis * nodes_per_axis];
+            for (int i = 0; i <= deg; i++)
+            {
+                for (int j = 0; j <= deg; j++)
+                {
+                    res[i * nodes_per_axis + j] = (low_left_y + i) * row_size + (low_left_x + j);
+                }
+            }
+            return res;
         }
     }
 }
