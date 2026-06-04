@@ -1245,6 +1245,19 @@ namespace K2
             return res;
         }
 
+        private void buttonFindPoint_Click(object sender, EventArgs e)
+        {
+            double x, y;
+            bool flagX = double.TryParse(textBoxSetX.Text.Replace('.', ','), out x);
+            bool flagY = double.TryParse(textBoxSetY.Text.Replace('.', ','), out y);
+            if (flagX && flagY)
+            {
+                double res = GetSolutionAt(x, y, basis_num);
+                textBoxPointVal.Text = res.ToString();
+                panel1.Invalidate();
+            }
+        }
+
         private double VectNorm(double[] vect)
         {
             double sum = 0;
@@ -1270,14 +1283,12 @@ namespace K2
             }
             double u_real_norm = VectNorm(u_real_solution), err_norm = VectNorm(error);
 
-            // Открываем файл для записи
             using (StreamWriter writer = new StreamWriter("mesh_results.txt"))
             {
-                // 1. Записываем шапку таблицы
                 // -15 означает выравнивание по левому краю, ширина столбца 15 символов
                 writer.WriteLine($"{"Индекс",-10} | {"X",-10} | {"Y",-10} | {"Функция (Точн.)",-18} | {"Решение (МКЭ)",-18} | {"Погрешность",-15}");
 
-                // 2. Выводим строки таблицы с данными векторов
+                // строки таблицы
                 for (int i = 0; i < solution.Length; i++)
                 {
                     int x = i % global_net_x.Count, y = i / global_net_x.Count;
@@ -1285,10 +1296,8 @@ namespace K2
                     writer.WriteLine($"{i,-10} | {global_net_x[x],-10:G5} | {global_net_y[y],-10:G5} | {u_real_solution[i],-18:G10} | {solution[i],-18:G10} | {error[i],-15:G8}");
                 }
 
-                writer.WriteLine(new string('-', 70)); // Разделительная линия перед итогами
-                writer.WriteLine(); // Пустая строка для визуального отделения
+                writer.WriteLine(); 
 
-                // 4. Записываем финальные числа в конец файла
                 writer.WriteLine($"Норма вектора функции:     {u_real_norm:E6}");
                 writer.WriteLine($"Норма вектора погрешности: {err_norm:E6}");
                 writer.WriteLine($"Относительная погрешность решения: {err_norm/u_real_norm:E6}");
@@ -1357,6 +1366,83 @@ namespace K2
                 }
             }
             return res;
+        }
+
+        public double GetSolutionAt(double x, double z, int deg)
+        {
+            var xNodes = global_net_x;
+            var zNodes = global_net_y;
+            var solution = this.solution;
+
+            if (xNodes == null || zNodes == null || solution == null) return 0;
+
+            int nx = xNodes.Count;
+            int nz = zNodes.Count;
+            int nodesPerAxis = deg + 1;
+
+            int ix = FindElementIndex(xNodes, x, deg);
+            int iz = FindElementIndex(zNodes, z, deg);
+
+            if (ix < 0 || iz < 0 || ix + deg >= nx || iz + deg >= nz) return 0;
+
+            // Локальные координаты (-1..1)
+            double x1 = xNodes[ix];
+            double x2 = xNodes[ix + deg];
+            double z1 = zNodes[iz];
+            double z2 = zNodes[iz + deg];
+
+            double xi = 2 * (x - x1) / (x2 - x1) - 1;
+            double eta = 2 * (z - z1) / (z2 - z1) - 1;
+
+            // базисные функции Лагранжа
+            double[] Nx = LagrangeBasis(xi, nodesPerAxis);
+            double[] Nz = LagrangeBasis(eta, nodesPerAxis);
+
+            // интерполяция
+            double result = 0;
+            for (int i = 0; i < nodesPerAxis; i++)
+                for (int j = 0; j < nodesPerAxis; j++)
+                {
+                    int idx = (iz + i) * nx + (ix + j);
+                    result += Nx[j] * Nz[i] * solution[idx];
+                }
+
+            return result;
+        }
+
+        private double[] LagrangeBasis(double xi, int n)
+        {
+            double[] N = new double[n];
+            if (n == 2) // линейный
+            {
+                N[0] = (1 - xi) / 2;
+                N[1] = (1 + xi) / 2;
+            }
+            else if (n == 3) // квадратичный
+            {
+                N[0] = 0.5 * xi * (xi - 1);
+                N[1] = 1 - xi * xi;
+                N[2] = 0.5 * xi * (xi + 1);
+            }
+            else if (n == 4) // кубический
+            {
+                N[0] = -1 / 16.0 * (1 - xi) * (1 - 3 * xi) * (1 + 3 * xi);
+                N[1] = 9 / 16.0 * (1 - xi * xi) * (1 - 3 * xi);
+                N[2] = 9 / 16.0 * (1 - xi * xi) * (1 + 3 * xi);
+                N[3] = -1 / 16.0 * (1 + xi) * (1 - 3 * xi) * (1 + 3 * xi);
+            }
+            return N;
+        }
+        private int FindElementIndex(List<float> nodes, double coord, int deg)
+        {
+            // Ищем элемент, содержащий coord
+            // Элементы идут с шагом deg
+            for (int i = 0; i + deg < nodes.Count; i += deg)
+            {
+                if (coord >= nodes[i] && coord <= nodes[i + deg])
+                    return i;
+            }
+            return -1;
         }
     }
 }

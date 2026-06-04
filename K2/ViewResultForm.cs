@@ -48,7 +48,11 @@ namespace K2
         float targetMaxHeight = 100.0f;  // максимальная высота после нормализации
 
         bool no_normalize = false;
-
+        // настройки отображения
+        bool show_green_box = true, show_surface = true, show_net = true, show_zero_y = true;
+        float x_size = 100.0f, z_size = 100.0f;
+        int x_zero_lines_num = 10, z_zero_lines_num = 10;
+        float y_zero = 0;
 
         public ViewResultForm(Form1 mainForm)
         {
@@ -123,14 +127,85 @@ namespace K2
         private void DrawHeightmap(OpenGL gl)
         {
             gl.Disable(OpenGL.GL_TEXTURE_2D);
-            gl.Begin(OpenGL.GL_QUADS);
-            gl.Color(0.2f, 0.8f, 0.3f);
+            if (show_green_box)
+            {
+                gl.Begin(OpenGL.GL_QUADS);
+                gl.Color(0.2f, 0.8f, 0.3f);
 
-            gl.Vertex(0.0f, 0.0f, 0.0f);
-            gl.Vertex(0.0f, 0.0f, 100.0f);
-            gl.Vertex(100.0f, 0.0f, 100.0f);
-            gl.Vertex(100.0f, 0.0f, 0.0f);
-            gl.End();
+                gl.Vertex(0.0f, 0.0f, 0.0f);
+                gl.Vertex(0.0f, 0.0f, z_size);
+                gl.Vertex(x_size, 0.0f, z_size);
+                gl.Vertex(x_size, 0.0f, 0.0f);
+                gl.End();
+
+
+                int x_strip_size = _mainForm.global_net_x.Count;
+                int z_strip_size = _mainForm.global_net_y.Count;
+                double min_y = _mainForm.solution.Min(), max_y = _mainForm.solution.Max();
+                gl.Begin(OpenGL.GL_QUADS);
+                for (int i = 0; i < x_strip_size - 1; i++)
+                {
+                    float x1 = ScaleX(_mainForm.global_net_x[i]);
+                    float x2 = ScaleX(_mainForm.global_net_x[i + 1]);
+                    float z = ScaleZ(0);
+
+                    float y1 = (float)NormalizeHeight(_mainForm.solution[i], min_y, max_y);
+                    float y2 = (float)NormalizeHeight(_mainForm.solution[i + 1], min_y, max_y);
+
+                    gl.Vertex(x1, 0, z);
+                    gl.Vertex(x2, 0, z);
+                    gl.Vertex(x2, y2, z);
+                    gl.Vertex(x1, y1, z);
+                }
+                gl.End();
+                gl.Begin(OpenGL.GL_QUADS);
+                for (int j = 0; j < z_strip_size - 1; j++)
+                {
+                    float z1 = ScaleZ(_mainForm.global_net_y[j]);
+                    float z2 = ScaleZ(_mainForm.global_net_y[j + 1]);
+
+                    float y1 = (float)NormalizeHeight(_mainForm.solution[j * x_strip_size + 0], min_y, max_y);
+                    float y2 = (float)NormalizeHeight(_mainForm.solution[(j + 1) * x_strip_size + 0], min_y, max_y);
+
+                    gl.Vertex(0.0f, 0.0f, z1);
+                    gl.Vertex(0.0f, 0.0f, z2);
+                    gl.Vertex(0.0f, y2, z2);
+                    gl.Vertex(0.0f, y1, z1);
+                }
+                gl.End();
+                gl.Begin(OpenGL.GL_QUADS);
+                for (int j = 0; j < z_strip_size - 1; j++)
+                {
+                    float z1 = ScaleZ(_mainForm.global_net_y[j]);
+                    float z2 = ScaleZ(_mainForm.global_net_y[j + 1]);
+                    float x = ScaleX(_mainForm.global_net_x[x_strip_size - 1]);
+
+                    float y1 = (float)NormalizeHeight(_mainForm.solution[j * x_strip_size + (x_strip_size - 1)], min_y, max_y);
+                    float y2 = (float)NormalizeHeight(_mainForm.solution[(j + 1) * x_strip_size + (x_strip_size - 1)], min_y, max_y);
+
+                    gl.Vertex(x, 0.0f, z1);
+                    gl.Vertex(x, 0.0f, z2);
+                    gl.Vertex(x, y2, z2);
+                    gl.Vertex(x, y1, z1);
+                }
+                gl.End();
+                gl.Begin(OpenGL.GL_QUADS);
+                for (int i = 0; i < x_strip_size - 1; i++)
+                {
+                    float x1 = ScaleX(_mainForm.global_net_x[i]);
+                    float x2 = ScaleX(_mainForm.global_net_x[i + 1]);
+                    float z = ScaleZ(_mainForm.global_net_y[z_strip_size - 1]);
+
+                    float y1 = (float)NormalizeHeight(_mainForm.solution[(z_strip_size - 1) * x_strip_size + i], min_y, max_y);
+                    float y2 = (float)NormalizeHeight(_mainForm.solution[(z_strip_size - 1) * x_strip_size + (i + 1)], min_y, max_y);
+
+                    gl.Vertex(x1, 0.0f, z);
+                    gl.Vertex(x2, 0.0f, z);
+                    gl.Vertex(x2, y2, z);
+                    gl.Vertex(x1, y1, z);
+                }
+                gl.End();
+            }
             DrawRealSurface(gl);
         }
 
@@ -280,6 +355,17 @@ namespace K2
             }
         }
 
+        private void buttonUpdate_Click(object sender, EventArgs e)
+        {
+            show_green_box = checkBoxGreenBox.Checked;
+            show_net = checkBoxNet.Checked;
+            show_surface = checkBoxSolution.Checked;
+            show_zero_y = checkBoxY0.Checked;
+            if(!float.TryParse(textBoxZeroY.Text, out y_zero)) { y_zero = 0; textBoxZeroY.Text = "0"; }
+            panel1.Invalidate();
+            panelLegend.Invalidate();
+        }
+
         private void DrawRealSurface(OpenGL gl)
         {
             var xNodes = _mainForm.global_net_x;
@@ -301,91 +387,109 @@ namespace K2
                 if (Math.Abs(rawMaxY / rawMinY - 1) < 0.0001f) no_normalize = true;
             }
 
-
-            // Рисуем залитые квадраты
-            gl.Begin(OpenGL.GL_QUADS);
-            for (int i = 0; i < nz - 1; i++)
+            if (show_surface)
             {
-                float z1 = ScaleZ(zNodes[i]);
-                float z2 = ScaleZ(zNodes[i + 1]);
-
-                for (int j = 0; j < nx - 1; j++)
-                {
-                    float x1 = ScaleX(xNodes[j]);
-                    float x2 = ScaleX(xNodes[j + 1]);
-
-                    float rawY11 = GetRawHeight(i, j);
-                    float rawY12 = GetRawHeight(i, j + 1);
-                    float rawY21 = GetRawHeight(i + 1, j);
-                    float rawY22 = GetRawHeight(i + 1, j + 1);
-
-                    double y11 = NormalizeHeight(rawY11, rawMinY, rawMaxY);
-                    double y12 = NormalizeHeight(rawY12, rawMinY, rawMaxY);
-                    double y21 = NormalizeHeight(rawY21, rawMinY, rawMaxY);
-                    double y22 = NormalizeHeight(rawY22, rawMinY, rawMaxY);
-
-
-                    float t = (rawY11 - rawMinY) / (rawMaxY - rawMinY);
-                    gl.Color(t, 1 - Math.Abs(t - 0.5f) * 2, 1.0f - t);
-                    gl.Vertex(x1, y11, z1);
-
-                    t = (rawY21 - rawMinY) / (rawMaxY - rawMinY);
-                    gl.Color(t, 1 - Math.Abs(t - 0.5f) * 2, 1.0f - t);
-                    gl.Vertex(x1, y21, z2);
-
-                    t = (rawY22 - rawMinY) / (rawMaxY - rawMinY);
-                    gl.Color(t, 1 - Math.Abs(t - 0.5f) * 2, 1.0f - t);
-                    gl.Vertex(x2, y22, z2);
-
-                    t = (rawY12 - rawMinY) / (rawMaxY - rawMinY);
-                    gl.Color(t, 1 - Math.Abs(t - 0.5f) * 2, 1.0f - t);
-                    gl.Vertex(x2, y12, z1);
-                }
-            }
-            gl.End();
-
-            // отрисовка сетки
-
-            gl.Disable(OpenGL.GL_DEPTH_TEST);
-            gl.Color(0.0f, 0.0f, 0.0f);
-            gl.LineWidth(2.0f);
-
-            gl.Begin(OpenGL.GL_LINES);
-
-            // Линии вдоль X (горизонтальные)
-            for (int i = 0; i < nz; i++)
-            {
-                float z = ScaleZ(zNodes[i]);
-                for (int j = 0; j < nx - 1; j++)
-                {
-                    float x1 = ScaleX(xNodes[j]);
-                    float x2 = ScaleX(xNodes[j + 1]);
-                    float y1 = (float)NormalizeHeight(GetRawHeight(i, j), rawMinY, rawMaxY);
-                    float y2 = (float)NormalizeHeight(GetRawHeight(i, j + 1), rawMinY, rawMaxY);
-
-                    gl.Vertex(x1, y1, z);
-                    gl.Vertex(x2, y2, z);
-                }
-            }
-
-            // Линии вдоль Z (вертикальные)
-            for (int j = 0; j < nx; j++)
-            {
-                float x = ScaleX(xNodes[j]);
+                // Рисуем залитые квадраты
+                gl.Begin(OpenGL.GL_QUADS);
                 for (int i = 0; i < nz - 1; i++)
                 {
                     float z1 = ScaleZ(zNodes[i]);
                     float z2 = ScaleZ(zNodes[i + 1]);
-                    float y1 = (float)NormalizeHeight(GetRawHeight(i, j), rawMinY, rawMaxY);
-                    float y2 = (float)NormalizeHeight(GetRawHeight(i + 1, j), rawMinY, rawMaxY);
 
-                    gl.Vertex(x, y1, z1);
-                    gl.Vertex(x, y2, z2);
+                    for (int j = 0; j < nx - 1; j++)
+                    {
+                        float x1 = ScaleX(xNodes[j]);
+                        float x2 = ScaleX(xNodes[j + 1]);
+
+                        float rawY11 = GetRawHeight(i, j);
+                        float rawY12 = GetRawHeight(i, j + 1);
+                        float rawY21 = GetRawHeight(i + 1, j);
+                        float rawY22 = GetRawHeight(i + 1, j + 1);
+
+                        double y11 = NormalizeHeight(rawY11, rawMinY, rawMaxY);
+                        double y12 = NormalizeHeight(rawY12, rawMinY, rawMaxY);
+                        double y21 = NormalizeHeight(rawY21, rawMinY, rawMaxY);
+                        double y22 = NormalizeHeight(rawY22, rawMinY, rawMaxY);
+
+
+                        float t = (rawY11 - rawMinY) / (rawMaxY - rawMinY);
+                        gl.Color(t, 1 - Math.Abs(t - 0.5f) * 2, 1.0f - t);
+                        gl.Vertex(x1, y11, z1);
+
+                        t = (rawY21 - rawMinY) / (rawMaxY - rawMinY);
+                        gl.Color(t, 1 - Math.Abs(t - 0.5f) * 2, 1.0f - t);
+                        gl.Vertex(x1, y21, z2);
+
+                        t = (rawY22 - rawMinY) / (rawMaxY - rawMinY);
+                        gl.Color(t, 1 - Math.Abs(t - 0.5f) * 2, 1.0f - t);
+                        gl.Vertex(x2, y22, z2);
+
+                        t = (rawY12 - rawMinY) / (rawMaxY - rawMinY);
+                        gl.Color(t, 1 - Math.Abs(t - 0.5f) * 2, 1.0f - t);
+                        gl.Vertex(x2, y12, z1);
+                    }
                 }
+                gl.End();
             }
-            gl.End();
+            // отрисовка сетки
+            if (show_net)
+            {
+                //gl.Disable(OpenGL.GL_DEPTH_TEST);
+                gl.Color(0.0f, 0.0f, 0.0f);
+                gl.LineWidth(2.0f);
 
-            gl.Enable(OpenGL.GL_DEPTH_TEST);
+                gl.Begin(OpenGL.GL_LINES);
+
+                // Линии вдоль X (горизонтальные)
+                for (int i = 0; i < nz; i++)
+                {
+                    float z = ScaleZ(zNodes[i]);
+                    for (int j = 0; j < nx - 1; j++)
+                    {
+                        float x1 = ScaleX(xNodes[j]);
+                        float x2 = ScaleX(xNodes[j + 1]);
+                        float y1 = (float)NormalizeHeight(GetRawHeight(i, j), rawMinY, rawMaxY) + 0.001f * targetMaxHeight;
+                        float y2 = (float)NormalizeHeight(GetRawHeight(i, j + 1), rawMinY, rawMaxY) + 0.001f * targetMaxHeight;
+
+                        gl.Vertex(x1, y1, z);
+                        gl.Vertex(x2, y2, z);
+                    }
+                }
+
+                // Линии вдоль Z (вертикальные)
+                for (int j = 0; j < nx; j++)
+                {
+                    float x = ScaleX(xNodes[j]);
+                    for (int i = 0; i < nz - 1; i++)
+                    {
+                        float z1 = ScaleZ(zNodes[i]);
+                        float z2 = ScaleZ(zNodes[i + 1]);
+                        float y1 = (float)NormalizeHeight(GetRawHeight(i, j), rawMinY, rawMaxY) + 0.001f * targetMaxHeight;
+                        float y2 = (float)NormalizeHeight(GetRawHeight(i + 1, j), rawMinY, rawMaxY) + 0.001f * targetMaxHeight;
+
+                        gl.Vertex(x, y1, z1);
+                        gl.Vertex(x, y2, z2);
+                    }
+                }
+                gl.End();
+            }
+            if (show_zero_y)
+            {
+                float x_step = x_size / x_zero_lines_num, z_step = z_size / z_zero_lines_num;
+                gl.Begin(OpenGL.GL_LINES);
+                for(int i = 0; i <= x_zero_lines_num; i++)
+                {
+                    gl.Vertex(x_step * i, NormalizeHeight(y_zero, rawMinY, rawMaxY), 0);
+                    gl.Vertex(x_step * i, NormalizeHeight(y_zero, rawMinY, rawMaxY), z_size);
+                }
+                for (int i = 0; i <= z_zero_lines_num; i++)
+                {
+                    gl.Vertex(0, NormalizeHeight(y_zero, rawMinY, rawMaxY), z_step * i);
+                    gl.Vertex(x_size, NormalizeHeight(y_zero, rawMinY, rawMaxY), z_step * i);
+                }
+                gl.End();
+            }
+            //gl.Enable(OpenGL.GL_DEPTH_TEST);
         }
 
         // Функция нормализации
@@ -438,14 +542,14 @@ namespace K2
         {
             float minX = _mainForm.global_net_x.Min();
             float maxX = _mainForm.global_net_x.Max();
-            return (x - minX) / (maxX - minX) * 100.0f;
+            return (x - minX) / (maxX - minX) * x_size;
         }
 
         private float ScaleZ(float z)
         {
             float minZ = _mainForm.global_net_y.Min();
             float maxZ = _mainForm.global_net_y.Max();
-            return (z - minZ) / (maxZ - minZ) * 100.0f;
+            return (z - minZ) / (maxZ - minZ) * z_size;
         }
     }
 }

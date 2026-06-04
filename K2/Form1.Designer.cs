@@ -59,7 +59,7 @@
             this.radioButtonView = new System.Windows.Forms.RadioButton();
             this.radioButtonY = new System.Windows.Forms.RadioButton();
             this.radioButtonX = new System.Windows.Forms.RadioButton();
-            this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.XYTab = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.textBoxTotalElements = new System.Windows.Forms.TextBox();
             this.label8 = new System.Windows.Forms.Label();
@@ -91,6 +91,14 @@
             this.label15 = new System.Windows.Forms.Label();
             this.label14 = new System.Windows.Forms.Label();
             this.label13 = new System.Windows.Forms.Label();
+            this.tabPageXY = new System.Windows.Forms.TabPage();
+            this.buttonFindPoint = new System.Windows.Forms.Button();
+            this.label25 = new System.Windows.Forms.Label();
+            this.textBoxPointVal = new System.Windows.Forms.TextBox();
+            this.label24 = new System.Windows.Forms.Label();
+            this.textBoxSetY = new System.Windows.Forms.TextBox();
+            this.label23 = new System.Windows.Forms.Label();
+            this.textBoxSetX = new System.Windows.Forms.TextBox();
             this.button_clear = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
             this.Scale = new System.Windows.Forms.Label();
@@ -106,19 +114,20 @@
             this.загрузитьToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.button_solve = new System.Windows.Forms.Button();
             this.panel4 = new System.Windows.Forms.Panel();
+            this.buttonShow3D = new System.Windows.Forms.Button();
             this.tableLayoutPanelLegendValues = new System.Windows.Forms.TableLayoutPanel();
             this.labelMin = new System.Windows.Forms.Label();
             this.labelMed = new System.Windows.Forms.Label();
             this.labelMax = new System.Windows.Forms.Label();
             this.panelLegend = new System.Windows.Forms.Panel();
-            this.buttonShow3D = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.groupBox2.SuspendLayout();
-            this.tabControl1.SuspendLayout();
+            this.XYTab.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
             this.tabPagePars.SuspendLayout();
+            this.tabPageXY.SuspendLayout();
             this.panel3.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.panel4.SuspendLayout();
@@ -440,7 +449,7 @@
             this.groupBox2.Controls.Add(this.radioButtonView);
             this.groupBox2.Controls.Add(this.radioButtonY);
             this.groupBox2.Controls.Add(this.radioButtonX);
-            this.groupBox2.Controls.Add(this.tabControl1);
+            this.groupBox2.Controls.Add(this.XYTab);
             this.groupBox2.Controls.Add(this.button_clear);
             this.groupBox2.Controls.Add(this.button3);
             this.groupBox2.Location = new System.Drawing.Point(3, 353);
@@ -490,16 +499,17 @@
             this.radioButtonX.Text = "X";
             this.radioButtonX.UseVisualStyleBackColor = true;
             // 
-            // tabControl1
+            // XYTab
             // 
-            this.tabControl1.Controls.Add(this.tabPage1);
-            this.tabControl1.Controls.Add(this.tabPage2);
-            this.tabControl1.Controls.Add(this.tabPagePars);
-            this.tabControl1.Location = new System.Drawing.Point(6, 60);
-            this.tabControl1.Name = "tabControl1";
-            this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(234, 218);
-            this.tabControl1.TabIndex = 16;
+            this.XYTab.Controls.Add(this.tabPage1);
+            this.XYTab.Controls.Add(this.tabPage2);
+            this.XYTab.Controls.Add(this.tabPagePars);
+            this.XYTab.Controls.Add(this.tabPageXY);
+            this.XYTab.Location = new System.Drawing.Point(6, 60);
+            this.XYTab.Name = "XYTab";
+            this.XYTab.SelectedIndex = 0;
+            this.XYTab.Size = new System.Drawing.Size(234, 218);
+            this.XYTab.TabIndex = 16;
             // 
             // tabPage1
             // 
@@ -797,6 +807,83 @@
             this.label13.TabIndex = 0;
             this.label13.Text = "H0x";
             // 
+            // tabPageXY
+            // 
+            this.tabPageXY.Controls.Add(this.buttonFindPoint);
+            this.tabPageXY.Controls.Add(this.label25);
+            this.tabPageXY.Controls.Add(this.textBoxPointVal);
+            this.tabPageXY.Controls.Add(this.label24);
+            this.tabPageXY.Controls.Add(this.textBoxSetY);
+            this.tabPageXY.Controls.Add(this.label23);
+            this.tabPageXY.Controls.Add(this.textBoxSetX);
+            this.tabPageXY.Location = new System.Drawing.Point(4, 25);
+            this.tabPageXY.Name = "tabPageXY";
+            this.tabPageXY.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPageXY.Size = new System.Drawing.Size(226, 189);
+            this.tabPageXY.TabIndex = 3;
+            this.tabPageXY.Text = "X,Y";
+            this.tabPageXY.UseVisualStyleBackColor = true;
+            // 
+            // buttonFindPoint
+            // 
+            this.buttonFindPoint.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.buttonFindPoint.Location = new System.Drawing.Point(15, 131);
+            this.buttonFindPoint.Name = "buttonFindPoint";
+            this.buttonFindPoint.Size = new System.Drawing.Size(75, 23);
+            this.buttonFindPoint.TabIndex = 6;
+            this.buttonFindPoint.Text = "Найти";
+            this.buttonFindPoint.UseVisualStyleBackColor = true;
+            this.buttonFindPoint.Click += new System.EventHandler(this.buttonFindPoint_Click);
+            // 
+            // label25
+            // 
+            this.label25.AutoSize = true;
+            this.label25.Location = new System.Drawing.Point(13, 98);
+            this.label25.Name = "label25";
+            this.label25.Size = new System.Drawing.Size(77, 16);
+            this.label25.TabIndex = 5;
+            this.label25.Text = "Результат";
+            // 
+            // textBoxPointVal
+            // 
+            this.textBoxPointVal.Location = new System.Drawing.Point(119, 95);
+            this.textBoxPointVal.Name = "textBoxPointVal";
+            this.textBoxPointVal.ReadOnly = true;
+            this.textBoxPointVal.Size = new System.Drawing.Size(100, 22);
+            this.textBoxPointVal.TabIndex = 4;
+            // 
+            // label24
+            // 
+            this.label24.AutoSize = true;
+            this.label24.Location = new System.Drawing.Point(13, 37);
+            this.label24.Name = "label24";
+            this.label24.Size = new System.Drawing.Size(16, 16);
+            this.label24.TabIndex = 3;
+            this.label24.Text = "Y";
+            // 
+            // textBoxSetY
+            // 
+            this.textBoxSetY.Location = new System.Drawing.Point(119, 34);
+            this.textBoxSetY.Name = "textBoxSetY";
+            this.textBoxSetY.Size = new System.Drawing.Size(100, 22);
+            this.textBoxSetY.TabIndex = 2;
+            // 
+            // label23
+            // 
+            this.label23.AutoSize = true;
+            this.label23.Location = new System.Drawing.Point(13, 9);
+            this.label23.Name = "label23";
+            this.label23.Size = new System.Drawing.Size(15, 16);
+            this.label23.TabIndex = 1;
+            this.label23.Text = "X";
+            // 
+            // textBoxSetX
+            // 
+            this.textBoxSetX.Location = new System.Drawing.Point(119, 6);
+            this.textBoxSetX.Name = "textBoxSetX";
+            this.textBoxSetX.Size = new System.Drawing.Size(100, 22);
+            this.textBoxSetX.TabIndex = 0;
+            // 
             // button_clear
             // 
             this.button_clear.Cursor = System.Windows.Forms.Cursors.Hand;
@@ -933,6 +1020,7 @@
             // button_solve
             // 
             this.button_solve.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.button_solve.Cursor = System.Windows.Forms.Cursors.Hand;
             this.button_solve.Location = new System.Drawing.Point(8, 3);
             this.button_solve.Name = "button_solve";
             this.button_solve.Size = new System.Drawing.Size(113, 34);
@@ -955,6 +1043,18 @@
             this.panel4.Name = "panel4";
             this.panel4.Size = new System.Drawing.Size(991, 40);
             this.panel4.TabIndex = 22;
+            // 
+            // buttonShow3D
+            // 
+            this.buttonShow3D.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.buttonShow3D.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.buttonShow3D.Location = new System.Drawing.Point(133, 4);
+            this.buttonShow3D.Name = "buttonShow3D";
+            this.buttonShow3D.Size = new System.Drawing.Size(113, 34);
+            this.buttonShow3D.TabIndex = 22;
+            this.buttonShow3D.Text = "Показать";
+            this.buttonShow3D.UseVisualStyleBackColor = true;
+            this.buttonShow3D.Click += new System.EventHandler(this.buttonShow3D_Click);
             // 
             // tableLayoutPanelLegendValues
             // 
@@ -1018,17 +1118,6 @@
             this.panelLegend.TabIndex = 23;
             this.panelLegend.Paint += new System.Windows.Forms.PaintEventHandler(this.panelLegend_Paint);
             // 
-            // buttonShow3D
-            // 
-            this.buttonShow3D.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.buttonShow3D.Location = new System.Drawing.Point(133, 4);
-            this.buttonShow3D.Name = "buttonShow3D";
-            this.buttonShow3D.Size = new System.Drawing.Size(113, 34);
-            this.buttonShow3D.TabIndex = 22;
-            this.buttonShow3D.Text = "Показать";
-            this.buttonShow3D.UseVisualStyleBackColor = true;
-            this.buttonShow3D.Click += new System.EventHandler(this.buttonShow3D_Click);
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -1053,13 +1142,15 @@
             this.panel2.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
-            this.tabControl1.ResumeLayout(false);
+            this.XYTab.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
             this.tabPage1.PerformLayout();
             this.tabPage2.ResumeLayout(false);
             this.tabPage2.PerformLayout();
             this.tabPagePars.ResumeLayout(false);
             this.tabPagePars.PerformLayout();
+            this.tabPageXY.ResumeLayout(false);
+            this.tabPageXY.PerformLayout();
             this.panel3.ResumeLayout(false);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
@@ -1108,7 +1199,7 @@
         private System.Windows.Forms.Label labelMinY;
         private System.Windows.Forms.Label labelMaxX;
         private System.Windows.Forms.Label labelMinX;
-        private System.Windows.Forms.TabControl tabControl1;
+        private System.Windows.Forms.TabControl XYTab;
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.TabPage tabPage2;
         private System.Windows.Forms.TextBox textBoxTotalElements;
@@ -1157,6 +1248,14 @@
         private System.Windows.Forms.Label labelMax;
         private System.Windows.Forms.Panel panelLegend;
         private System.Windows.Forms.Button buttonShow3D;
+        private System.Windows.Forms.TabPage tabPageXY;
+        private System.Windows.Forms.TextBox textBoxSetX;
+        private System.Windows.Forms.Button buttonFindPoint;
+        private System.Windows.Forms.Label label25;
+        private System.Windows.Forms.TextBox textBoxPointVal;
+        private System.Windows.Forms.Label label24;
+        private System.Windows.Forms.TextBox textBoxSetY;
+        private System.Windows.Forms.Label label23;
     }
 }
 
