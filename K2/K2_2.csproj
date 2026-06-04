@@ -88,6 +88,12 @@
     <Compile Include="Settings.Designer.cs">
       <DependentUpon>Settings.cs</DependentUpon>
     </Compile>
+    <Compile Include="ThresholdForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ThresholdForm.Designer.cs">
+      <DependentUpon>ThresholdForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="ViewResultForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -115,10 +121,15 @@
     <EmbeddedResource Include="Settings.resx">
       <DependentUpon>Settings.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="ThresholdForm.resx">
+      <DependentUpon>ThresholdForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="ViewResultForm.resx">
       <DependentUpon>ViewResultForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="packages.config" />
+    <None Include="Properties\DataSources\ColorThreshold.datasource" />
+    <None Include="Properties\DataSources\ThresholdForm.datasource" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
