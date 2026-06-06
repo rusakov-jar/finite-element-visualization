@@ -9,7 +9,7 @@ namespace K2
     public static class CGSolver
     {
         public static double[] Solve(Func<double[], double[]> multiply, double[] b,
-                                     double tolerance = 1e-10, int maxIter = 10000)
+                                     double tolerance = 1e-13, int maxIter = 100000)
         {
             int N = b.Length;
             double[] x = new double[N];
