@@ -56,6 +56,7 @@ namespace K2
         int x_zero_lines_num = 10, z_zero_lines_num = 10;
         double y_zero = 0;
 
+        private List<Label> legendLabels = new List<Label>();
         private List<ColorThreshold> thresholds = new List<ColorThreshold>()
         {
             new ColorThreshold { Value = 0, Color = Color.Blue },
@@ -75,6 +76,16 @@ namespace K2
             openGLDrawingArea.MouseDown += OpenGLDrawingArea_MouseDown;
             openGLDrawingArea.MouseMove += OpenGLDrawingArea_MouseMove;
             openGLDrawingArea.MouseUp += OpenGLDrawingArea_MouseUp;// Подписка на клавиатуру
+
+            double sol_min = _mainForm.solution.Min();
+            double sol_max = _mainForm.solution.Max();
+            thresholds = new List<ColorThreshold>() {
+            new ColorThreshold { Value = sol_min, Color = Color.Blue },
+            new ColorThreshold { Value = (sol_max + sol_min) / 2, Color = Color.LimeGreen },
+            new ColorThreshold { Value = sol_max, Color = Color.Red }
+            };
+            UpdateLegendLabels();
+
 
             this.KeyDown += ViewResultForm_KeyDown;
             this.KeyUp += ViewResultForm_KeyUp;
@@ -141,10 +152,10 @@ namespace K2
                 gl.Begin(OpenGL.GL_QUADS);
                 gl.Color(0.2f, 0.8f, 0.3f);
 
-                gl.Vertex(0.0f, 0.0f, 0.0f);
-                gl.Vertex(0.0f, 0.0f, z_size);
-                gl.Vertex(x_size, 0.0f, z_size);
-                gl.Vertex(x_size, 0.0f, 0.0f);
+                gl.Vertex(0.0f, -0.001f, 0.0f);
+                gl.Vertex(0.0f, -0.001f, z_size);
+                gl.Vertex(x_size, -0.001f, z_size);
+                gl.Vertex(x_size, -0.001f, 0.0f);
                 gl.End();
 
 
@@ -542,7 +553,7 @@ namespace K2
 
                 for (int y = yStart; y <= yEnd; y++)
                 {
-                    double t = (y - yStart) / (yEnd - yStart);
+                    double t = (double)(y - yStart) / (yEnd - yStart);
                     Color color = InterpolateColor(startColor, endColor, t);
                     using (Pen pen = new Pen(color))
                     {
@@ -566,6 +577,7 @@ namespace K2
                 {
                     thresholds = dlg.Thresholds;
                     panelLegend.Invalidate();
+                    UpdateLegendLabels();
                     openGLDrawingArea.Invalidate();
                 }
             }
@@ -576,6 +588,32 @@ namespace K2
             double minX = _mainForm.global_net_x.Min();
             double maxX = _mainForm.global_net_x.Max();
             return (x - minX) / (maxX - minX) * x_size;
+        }
+
+        private void buttonSetCam_Click(object sender, EventArgs e)
+        {
+            double cam_x, cam_y, cam_z, look_at_x, look_at_y, look_at_z;
+            bool input_correct = true;
+            if (!double.TryParse(textBoxCamPosX.Text.Replace('.', ','), out cam_x))
+                input_correct = false;
+            if (!double.TryParse(textBoxCamPosY.Text.Replace('.', ','), out cam_y))
+                input_correct = false;
+            if (!double.TryParse(textBoxCamPosZ.Text.Replace('.', ','), out cam_z))
+                input_correct = false;
+            if (!double.TryParse(textBoxCamLookAtX.Text.Replace('.', ','), out look_at_x))
+                input_correct = false;
+            if (!double.TryParse(textBoxCamLookAtY.Text.Replace('.', ','), out look_at_y))
+                input_correct = false;
+            if (!double.TryParse(textBoxCamLookAtZ.Text.Replace('.', ','), out look_at_z))
+                input_correct = false;
+            if (!input_correct)
+            {
+                MessageBox.Show("Ошибка ввода");
+            }
+            else
+            {
+                UpdateCameraFromInput(cam_x, cam_y, cam_z, look_at_x, look_at_y, look_at_z);
+            }
         }
 
         private double ScaleZ(double z)
@@ -611,6 +649,12 @@ namespace K2
             }
 
             return Color.Black;
+        }
+
+        private void ViewResultForm_Resize(object sender, EventArgs e)
+        {
+            PositionLegendLabels();
+            panelLegend.Invalidate();
         }
 
         private Color InterpolateColor(Color a, Color b, double t)
@@ -650,17 +694,84 @@ namespace K2
 
                     // Рисуем горизонтальную линию-маркер
                     g.DrawLine(markerPen, width - 15, y, width - 5, y);
-
-                    // Рисуем значение справа от маркера
-                    string valueText = threshold.Value.ToString("F1");
-                    SizeF textSize = g.MeasureString(valueText, font);
-                    double textX = width - textSize.Width - 18;
-                    double textY = y - textSize.Height / 2;
-
-                    // Белый фон для читаемости
-                    g.FillRectangle(Brushes.White, (float)textX - 2, (float)textY - 1, textSize.Width + 4, textSize.Height + 2);
-                    g.DrawString(valueText, font, textBrush, (float)textX, (float)textY);
                 }
+            }
+        }
+
+        private void UpdateCameraFromInput(double input_cameraX, double input_cameraY, double input_cameraZ, double input_targetX, double input_targetY, double input_targetZ)
+        {
+            double dx = (input_targetX - input_cameraX);
+            double dy = (input_targetY - input_cameraY);
+            double dz = (input_targetZ - input_cameraZ);
+
+            yaw = Math.Atan2(dz, dx) * 180.0 / Math.PI;
+
+            double horizontalDistance = Math.Sqrt(dx * dx + dz * dz);
+            pitch = Math.Atan2(dy, horizontalDistance) * 180.0 / Math.PI;
+
+            if (pitch > 89.0f) pitch = 89.0f;
+            if (pitch < -89.0f) pitch = -89.0f;
+            cameraX = input_cameraX;
+            cameraY = input_cameraY;
+            cameraZ = input_cameraZ;
+        }
+
+        private void UpdateLegendLabels()
+        {
+            var sorted = thresholds.OrderBy(t => t.Value).ToList();
+            if (sorted.Count == 0) return;
+
+            // Удаляем старые Label
+            foreach (var label in legendLabels)
+            {
+                this.Controls.Remove(label);
+                label.Dispose();
+            }
+            legendLabels.Clear();
+
+            // Создаём новые Label для каждого порога
+            foreach (var threshold in sorted)
+            {
+                Label label = new Label();
+                label.AutoSize = true;
+                label.Font = new Font("Arial", 8, FontStyle.Bold);
+                label.TextAlign = ContentAlignment.MiddleRight;
+                label.BackColor = Color.White;
+                label.Text = threshold.Value.ToString("F1");
+
+                this.Controls.Add(label);
+                legendLabels.Add(label);
+            }
+
+            // Позиционируем Label
+            PositionLegendLabels();
+        }
+
+        private void PositionLegendLabels()
+        {
+            if (legendLabels.Count == 0) return;
+
+            var sorted = thresholds.OrderBy(t => t.Value).ToList();
+            if (sorted.Count != legendLabels.Count) return;
+
+            int legendRight = panelLegend.Left + panelLegend.Width;
+            int labelX = legendRight + 5;  // отступ справа от панели
+
+            double minVal = sorted.First().Value;
+            double maxVal = sorted.Last().Value;
+            double range = maxVal - minVal;
+            if (range < 0.0001) range = 1;
+
+            for (int i = 0; i < legendLabels.Count; i++)
+            {
+                double t = (sorted[i].Value - minVal) / range;
+                int y = (int)(panelLegend.Height * (1 - t));
+                y = panelLegend.Top + y;
+
+                Label label = legendLabels[i];
+                label.Text = sorted[i].Value.ToString("F1");
+                label.Left = labelX;
+                label.Top = y - label.Height / 2;
             }
         }
     }

@@ -1179,7 +1179,7 @@ namespace K2
                             g.FillPolygon(brush, points);
                             if (show_triangle_border)
                             {
-                                g.DrawPolygon(Pens.Gray, points);
+                                g.DrawLines(Pens.Gray, points);
                             }
                         }
                     }
@@ -1208,7 +1208,7 @@ namespace K2
                             g.FillPolygon(brush, points);
                             if (show_triangle_border)
                             {
-                                g.DrawPolygon(Pens.Gray, points);
+                                g.DrawLines(Pens.Gray, points);
                             }
                         }
                     }
