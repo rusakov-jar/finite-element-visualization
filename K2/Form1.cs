@@ -18,19 +18,19 @@ namespace K2
     {
         FormWindowState last_state = FormWindowState.Normal;
 
-        List<float> LXPoints; // точки разбиения большой сетки(сырые координаты)
-        List<float> LYPoints;
-        public List<float> global_net_x, global_net_y; // координаты линий итоговой сетки по осям
-        float scale = 1;
-        float initial_scale = 1;
-        float orig_width;
-        float orig_height;
-        float orig_x1, orig_x2, orig_y1, orig_y2;
+        List<double> LXPoints; // точки разбиения большой сетки(сырые координаты)
+        List<double> LYPoints;
+        public List<double> global_net_x, global_net_y; // координаты линий итоговой сетки по осям
+        double scale = 1;
+        double initial_scale = 1;
+        double orig_width;
+        double orig_height;
+        double orig_x1, orig_x2, orig_y1, orig_y2;
         FormSubAreaSettings f_set_sub = new FormSubAreaSettings();
-        public List<float>[] XSplits; // разбиения по осям(сырые координаты)
-        public List<float>[] YSplits;
+        public List<double>[] XSplits; // разбиения по осям(сырые координаты)
+        public List<double>[] YSplits;
         public string settings_str;
-        public float eps, q1, q2;
+        public double eps, q1, q2;
         public string mode;
         bool show_subarea_border = true, show_triangle_border = true, show_element_border = true;
 
@@ -40,10 +40,10 @@ namespace K2
 
         public class SelectedCell
         {
-            public float top_left_x = -1; // координаты узла для отрисовки(без поправки на масштаб)
-            public float top_left_y = -1;
-            public float bottom_right_x = -1;
-            public float bottom_right_y = -1;
+            public double top_left_x = -1; // координаты узла для отрисовки(без поправки на масштаб)
+            public double top_left_y = -1;
+            public double bottom_right_x = -1;
+            public double bottom_right_y = -1;
             public int cell_x_num = -1; //координаты узла по номеру(индексы для subareas)
             public int cell_y_num = -1;
         }
@@ -57,9 +57,9 @@ namespace K2
             panel1.Paint += panel1_Paint;
             settings_str = System.IO.File.ReadAllText("../../settings.txt");
             string[] split_strs = settings_str.Split(' ');
-            eps = float.Parse(split_strs[0]);
-            q1 = float.Parse(split_strs[1]);
-            q2 = float.Parse(split_strs[2]);
+            eps = double.Parse(split_strs[0]);
+            q1 = double.Parse(split_strs[1]);
+            q2 = double.Parse(split_strs[2]);
             mode = split_strs[3];
             preset_num = int.Parse(split_strs[4]);
             basis_num = int.Parse(split_strs[5]);
@@ -84,11 +84,11 @@ namespace K2
                 {
                     for (int i = 0; i < LXPoints.Count; i++)
                     {
-                        g.DrawLine(pen, (LXPoints[i] - LXPoints[0]) * scale, 0, (LXPoints[i] - LXPoints[0]) * scale, height);
+                        g.DrawLine(pen, (float)((LXPoints[i] - LXPoints[0]) * scale), 0, (float)((LXPoints[i] - LXPoints[0]) * scale), height);
                     }
                     for (int i = 0; i < LYPoints.Count; i++)
                     {
-                        g.DrawLine(pen, 0, height - ((LYPoints[i] - LYPoints[0]) * scale), width, height - (LYPoints[i] - LYPoints[0]) * scale);
+                        g.DrawLine(pen, 0, (float)(height - ((LYPoints[i] - LYPoints[0]) * scale)), width, (float)(height - (LYPoints[i] - LYPoints[0]) * scale));
                     }
                 }
                 // отрисовка выделения области
@@ -96,11 +96,11 @@ namespace K2
                 {
                     Pen SelCellBorder = new Pen(Color.Red);
                     SelCellBorder.Width += 5;
-                    float x1 = (SelCell.top_left_x - LXPoints[0]) * scale - 2;
-                    float y1 = (SelCell.top_left_y - LYPoints[0]) * scale - 2;
+                    float x1 = (float)((SelCell.top_left_x - LXPoints[0]) * scale - 2);
+                    float y1 = (float)((SelCell.top_left_y - LYPoints[0]) * scale - 2);
                     y1 = height - y1;
-                    float x2 = (SelCell.bottom_right_x - LXPoints[0]) * scale - 2;
-                    float y2 = (SelCell.bottom_right_y - LYPoints[0]) * scale - 2;
+                    float x2 = (float)((SelCell.bottom_right_x - LXPoints[0]) * scale - 2);
+                    float y2 = (float)((SelCell.bottom_right_y - LYPoints[0]) * scale - 2);
                     y2 = height - y2;
                     if (radioButtonX.Checked)
                     {
@@ -139,20 +139,20 @@ namespace K2
                             }
                             for (int i1 = 0; i1 < cur_net.nodes.GetLength(0); i1++)
                             {
-                                float x1 = (cur_net.nodes[i1, 0].X - LXPoints[0]) * scale;
+                                float x1 = (float)((cur_net.nodes[i1, 0].X - LXPoints[0]) * scale);
                                 float x2 = x1;
-                                float y1 = (cur_net.nodes[i1, 0].Y - LYPoints[0]) * scale;
-                                float y2 = y1 + cur_net.net_size.Height * scale;
+                                float y1 = (float)((cur_net.nodes[i1, 0].Y - LYPoints[0]) * scale);
+                                float y2 = (float)(y1 + cur_net.net_size.Height * scale);
                                 y1 = height - y1;
                                 y2 = height - y2;
                                 g.DrawLine(subarea_pen, x1, y1, x2, y2);
                             }
                             for (int j1 = 0; j1 < cur_net.nodes.GetLength(1); j1++)
                             {
-                                float y1 = (cur_net.nodes[0, j1].Y - LYPoints[0]) * scale;
+                                float y1 = (float)((cur_net.nodes[0, j1].Y - LYPoints[0]) * scale);
                                 float y2 = y1;
-                                float x1 = (cur_net.nodes[0, j1].X - LXPoints[0]) * scale;
-                                float x2 = x1 + cur_net.net_size.Width * scale;
+                                float x1 = (float)((cur_net.nodes[0, j1].X - LXPoints[0]) * scale);
+                                float x2 = (float)(x1 + cur_net.net_size.Width * scale);
                                 y1 = height - y1;
                                 y2 = height - y2;
                                 g.DrawLine(subarea_pen, x1, y1, x2, y2);
@@ -314,8 +314,8 @@ namespace K2
             {
                 return;
             }
-            float X = SelCell.top_left_x;
-            float Y = SelCell.top_left_y;
+            double X = SelCell.top_left_x;
+            double Y = SelCell.top_left_y;
             if (f_set_sub == null)
             {
                 f_set_sub = new FormSubAreaSettings();
@@ -325,17 +325,17 @@ namespace K2
             {
                 return;
             }
-            float h0 = f_set_sub.h0;
+            double h0 = f_set_sub.h0;
             int n = f_set_sub.n;
-            float q = f_set_sub.q;
-            float a_par = SelCell.top_left_x;
-            float b_par = SelCell.bottom_right_x;
+            double q = f_set_sub.q;
+            double a_par = SelCell.top_left_x;
+            double b_par = SelCell.bottom_right_x;
             if (radioButtonY.Checked)
             {
                 a_par = SelCell.top_left_y;
                 b_par = SelCell.bottom_right_y;
             }
-            List<float> split = new List<float>();
+            List<double> split = new List<double>();
             NetCalc netCalc = new NetCalc(q1, q2);
             switch (f_set_sub.state)
             {
@@ -364,7 +364,7 @@ namespace K2
                 {
                     if (YSplits[j] == null)
                     {
-                        YSplits[j] = new List<float>() { LYPoints[j], LYPoints[j + 1] };
+                        YSplits[j] = new List<double>() { LYPoints[j], LYPoints[j + 1] };
                     }
                     subareas[SelCell.cell_x_num,j] = netCalc.makeNet(split, YSplits[j]);
                 }
@@ -376,7 +376,7 @@ namespace K2
                 {
                     if (XSplits[i] == null)
                     {
-                        XSplits[i] = new List<float>() { LXPoints[i], LXPoints[i + 1] };
+                        XSplits[i] = new List<double>() { LXPoints[i], LXPoints[i + 1] };
                     }
                     subareas[i, SelCell.cell_y_num] = netCalc.makeNet(XSplits[i], split);
                 }
@@ -394,13 +394,13 @@ namespace K2
             {
                 if (orig_x2 < orig_x1)
                 {
-                    float t = orig_x2;
+                    double t = orig_x2;
                     orig_x2 = orig_x1;
                     orig_x1 = t;
                 }
                 if (orig_y2 < orig_y1)
                 {
-                    float t = orig_y2;
+                    double t = orig_y2;
                     orig_y2 = orig_y1;
                     orig_y1 = t;
                 }
@@ -412,18 +412,18 @@ namespace K2
                 orig_height = orig_y2 - orig_y1;
                 int panelXSize = panel2.Width;
                 int panelYSize = panel2.Height - 10;
-                LXPoints = new List<float> { orig_x1, orig_x2 };
-                LYPoints = new List<float> { orig_y1, orig_y2 };
+                LXPoints = new List<double> { orig_x1, orig_x2 };
+                LYPoints = new List<double> { orig_y1, orig_y2 };
                 scale = NetCalc.ScaleCalc(orig_width, orig_height, panelXSize, panelYSize);
                 initial_scale = scale;
                 textBox3.Text = scale.ToString();
                 panel1.Size = new Size((int)(orig_width * scale), (int)(orig_height * scale));
                 panel1.Visible = true;
                 subareas = new SmallNet[LXPoints.Count - 1, LYPoints.Count - 1];
-                XSplits = new List<float>[1];
-                XSplits[0] = new List<float> { orig_x1, orig_x2 };
-                YSplits = new List<float>[1];
-                YSplits[0] = new List<float> { orig_y1, orig_y2 };
+                XSplits = new List<double>[1];
+                XSplits[0] = new List<double> { orig_x1, orig_x2 };
+                YSplits = new List<double>[1];
+                YSplits[0] = new List<double> { orig_y1, orig_y2 };
                 inner_net_editor_activate();
                 panel1.Invalidate();
                 panel1.Update();
@@ -452,14 +452,14 @@ namespace K2
 
         private void button_addXpoint_Click(object sender, EventArgs e)
         {
-            float xval;
-            bool x_valid = float.TryParse(textBoxAddXPoint.Text, out xval);
+            double xval;
+            bool x_valid = double.TryParse(textBoxAddXPoint.Text, out xval);
             if (x_valid && xval >= 0 && xval <= panel1.Width)
             {
                 LXPoints.Add(xval);
                 listBoxX.Items.Clear();
                 LXPoints.Sort();
-                foreach (float point in LXPoints)
+                foreach (double point in LXPoints)
                 {
                     if (point == LXPoints[0] || point == LXPoints[LXPoints.Count - 1])
                     {
@@ -468,7 +468,7 @@ namespace K2
                     listBoxX.Items.Add(point);
                 }
                 subareas = new SmallNet[LXPoints.Count - 1, LYPoints.Count - 1];
-                XSplits = new List<float>[LXPoints.Count - 1];
+                XSplits = new List<double>[LXPoints.Count - 1];
                 panel1.Invalidate();
                 panel1.Update();
             }
@@ -476,14 +476,14 @@ namespace K2
 
         private void button_addYpoint_Click(object sender, EventArgs e)
         {
-            float yval;
-            bool y_valid = float.TryParse(textBoxAddYPoint.Text, out yval);
+            double yval;
+            bool y_valid = double.TryParse(textBoxAddYPoint.Text, out yval);
             if (y_valid && yval >= 0 && yval <= panel1.Height)
             {
                 LYPoints.Add(yval);
                 listBoxY.Items.Clear();
                 LYPoints.Sort();
-                foreach (float point in LYPoints)
+                foreach (double point in LYPoints)
                 {
                     if (point == LYPoints[0] || point == LYPoints[LYPoints.Count - 1])
                     {
@@ -492,7 +492,7 @@ namespace K2
                     listBoxY.Items.Add(point);
                 }
                 subareas = new SmallNet[LXPoints.Count - 1, LYPoints.Count - 1];
-                YSplits = new List<float>[LYPoints.Count - 1];
+                YSplits = new List<double>[LYPoints.Count - 1];
                 panel1.Invalidate();
                 panel1.Update();
             }
@@ -610,8 +610,8 @@ namespace K2
 
         private void button5_Click(object sender, EventArgs e)
         {
-            float new_scale;
-            bool flag = float.TryParse(textBox3.Text.Replace('.', ','), out new_scale);
+            double new_scale;
+            bool flag = double.TryParse(textBox3.Text.Replace('.', ','), out new_scale);
             if (flag)
             {
                 panel1.Width = (int)(orig_width * new_scale);
@@ -630,7 +630,7 @@ namespace K2
                 listBoxX.Items.RemoveAt(listBoxX.SelectedIndex);
                 LXPoints.RemoveAt(ind + 1);
                 subareas = new SmallNet[LXPoints.Count - 1, LYPoints.Count - 1];
-                XSplits = new List<float>[LXPoints.Count - 1];
+                XSplits = new List<double>[LXPoints.Count - 1];
                 SelCell = null;
                 panel1.Invalidate();
                 panel1.Update();
@@ -645,7 +645,7 @@ namespace K2
                 listBoxY.Items.RemoveAt(listBoxY.SelectedIndex);
                 LYPoints.RemoveAt(ind + 1);
                 subareas = new SmallNet[LXPoints.Count - 1, LYPoints.Count - 1];
-                YSplits = new List<float>[LYPoints.Count - 1];
+                YSplits = new List<double>[LYPoints.Count - 1];
                 SelCell = null;
                 panel1.Invalidate();
                 panel1.Update();
@@ -857,33 +857,33 @@ namespace K2
                         switch (currentSection)
                         {
                             case "GlobalParams":
-                                if (key == "eps") eps = float.Parse(value);
-                                else if (key == "q1") q1 = float.Parse(value);
-                                else if (key == "q2") q2 = float.Parse(value);
+                                if (key == "eps") eps = double.Parse(value);
+                                else if (key == "q1") q1 = double.Parse(value);
+                                else if (key == "q2") q2 = double.Parse(value);
                                 else if (key == "mode") mode = value;
-                                else if (key == "scale") scale = float.Parse(value);
-                                else if (key == "initial_scale") initial_scale = float.Parse(value);
+                                else if (key == "scale") scale = double.Parse(value);
+                                else if (key == "initial_scale") initial_scale = double.Parse(value);
                                 break;
 
                             case "Area":
-                                if (key == "x1") orig_x1 = float.Parse(value);
-                                else if (key == "x2") orig_x2 = float.Parse(value);
-                                else if (key == "y1") orig_y1 = float.Parse(value);
-                                else if (key == "y2") orig_y2 = float.Parse(value);
-                                else if (key == "width") orig_width = float.Parse(value);
-                                else if (key == "height") orig_height = float.Parse(value);
+                                if (key == "x1") orig_x1 = double.Parse(value);
+                                else if (key == "x2") orig_x2 = double.Parse(value);
+                                else if (key == "y1") orig_y1 = double.Parse(value);
+                                else if (key == "y2") orig_y2 = double.Parse(value);
+                                else if (key == "width") orig_width = double.Parse(value);
+                                else if (key == "height") orig_height = double.Parse(value);
                                 break;
 
                             case "LXPoints":
                                 if (key == "count")
                                 {
                                     lxPointsCount = int.Parse(value);
-                                    LXPoints = new List<float>(new float[lxPointsCount]);
+                                    LXPoints = new List<double>(new double[lxPointsCount]);
                                 }
                                 else if (key.StartsWith("LXPoints["))
                                 {
                                     int index = int.Parse(key.Substring(9, key.IndexOf(']') - 9));
-                                    LXPoints[index] = float.Parse(value);
+                                    LXPoints[index] = double.Parse(value);
                                 }
                                 break;
 
@@ -891,12 +891,12 @@ namespace K2
                                 if (key == "count")
                                 {
                                     lyPointsCount = int.Parse(value);
-                                    LYPoints = new List<float>(new float[lyPointsCount]);
+                                    LYPoints = new List<double>(new double[lyPointsCount]);
                                 }
                                 else if (key.StartsWith("LYPoints["))
                                 {
                                     int index = int.Parse(key.Substring(9, key.IndexOf(']') - 9));
-                                    LYPoints[index] = float.Parse(value);
+                                    LYPoints[index] = double.Parse(value);
                                 }
                                 break;
 
@@ -904,7 +904,7 @@ namespace K2
                                 if (key == "count")
                                 {
                                     xSplitsCount = int.Parse(value);
-                                    XSplits = new List<float>[xSplitsCount];
+                                    XSplits = new List<double>[xSplitsCount];
                                 }
                                 // Обработка элементов XSplits
                                 break;
@@ -913,7 +913,7 @@ namespace K2
                                 if (key == "count")
                                 {
                                     ySplitsCount = int.Parse(value);
-                                    YSplits = new List<float>[ySplitsCount];
+                                    YSplits = new List<double>[ySplitsCount];
                                 }
                                 break;
 
@@ -967,7 +967,7 @@ namespace K2
             // Рисуем градиентную полосу
             for (int y = 0; y < height; y++)
             {
-                float t = 1.0f - (float)y / height; // от max (верх) к min (низ)
+                double t = 1.0f - (double)y / height; // от max (верх) к min (низ)
                 int r = (int)(255 * t);
                 int gVal = (int)(255 * (1 - Math.Abs(t - 0.5f) * 2));
                 int b = (int)(255 * (1 - t));
@@ -981,8 +981,8 @@ namespace K2
             g.DrawRectangle(Pens.Black, 0, 0, width - 1, height - 1);
 
             // Подписываем min и max значения
-            float minValue = (float)solution.Min();
-            float maxValue = (float)solution.Max();
+            double minValue = (double)solution.Min();
+            double maxValue = (double)solution.Max();
             labelMax.Text = maxValue.ToString();
             labelMin.Text = minValue.ToString();
             labelMed.Text = ((maxValue + minValue) / 2).ToString();
@@ -1043,20 +1043,20 @@ namespace K2
 
             // сборка глобальной матрицы
             int element_size = deg; // размер элемента в координатах узлов равен степени базисных полиномов элемента
-            for (int i = 0; i < global_net_y.Count - 1; i += deg)
+            for (int i = 0; i < global_net_y.Count - deg; i += deg)
             {
-                for (int j = 0; j < global_net_x.Count - 1; j += deg)
+                for (int j = 0; j < global_net_x.Count - deg; j += deg)
                 {
                     double hx = CalcH(global_net_x, j, deg), hy = CalcH(global_net_y, i, deg);
-                    double[] f = BuildLocalF(global_net_x,global_net_y, lambda, gamma, deg, j, i, f_mode);
+                    double[] f = BuildLocalF(global_net_x, global_net_y, lambda, gamma, deg, j, i, f_mode);
                     assembler.buildLocal(hx, hy, lambda, gamma, f);
                     int[] indexes = BuildLocalToGlobalArray(global_net_x, global_net_y, deg, j, i);
                     assembler.addToGlobal(indexes);
                 }
             }
             // применение граничных условий
-            Dictionary<int, double> bounds = BuildBoundaryDictions(global_net_x, global_net_y, lambda, gamma, f_mode);
-            assembler.applyBoundaryCondition(bounds, deg);
+            Dictionary<int, double> bounds = BuildBoundaryConditions(global_net_x, global_net_y, lambda, gamma, f_mode);
+            assembler.applyBoundaryCondition(bounds);
             // Вызов решателя СЛАУ
             var multiply = new Func<double[], double[]>(vec =>
             {
@@ -1068,13 +1068,13 @@ namespace K2
             // запись решения в файл
             WriteResults(f_mode);
         }
-        Dictionary<int, double> BuildBoundaryDictions(List<float> x_list, List<float> y_list, double lambda, double gamma, int mode)
+        Dictionary<int, double> BuildBoundaryConditions(List<double> x_list, List<double> y_list, double lambda, double gamma, int mode)
         {
             Dictionary<int, double> res = new Dictionary<int, double>();
             for (int i = 0; i < y_list.Count; i++)
             {
-                float x = x_list[0];
-                float y = y_list[i];
+                double x = x_list[0];
+                double y = y_list[i];
                 int num = i * x_list.Count;
                 res[num] = UVal(x, y, mode);
                 x = x_list.Last();
@@ -1083,8 +1083,8 @@ namespace K2
             }
             for (int i = 0; i < x_list.Count; i++)
             {
-                float x = x_list[i];
-                float y = y_list[0];
+                double x = x_list[i];
+                double y = y_list[0];
                 int num = i;
                 res[num] = UVal(x, y, mode);
                 y = y_list.Last();
@@ -1118,13 +1118,13 @@ namespace K2
                     double elementValue = (solution[n_ll] + solution[n_lr] +
                                            solution[n_ul] + solution[n_ur]) / 4.0;
 
-                    float normalizedValue = (float)((elementValue - minVal) / range);
-                    float normalized_ll, normalized_lr, normalized_ul, normalized_ur;
+                    double normalizedValue = (double)((elementValue - minVal) / range);
+                    double normalized_ll, normalized_lr, normalized_ul, normalized_ur;
                     Color color_ll, color_lr, color_ul, color_ur;
-                    normalized_ll = (float)((solution[n_ll] - minVal) / range);
-                    normalized_lr = (float)((solution[n_lr] - minVal) / range);
-                    normalized_ul = (float)((solution[n_ul] - minVal) / range);
-                    normalized_ur = (float)((solution[n_ur] - minVal) / range);
+                    normalized_ll = (double)((solution[n_ll] - minVal) / range);
+                    normalized_lr = (double)((solution[n_lr] - minVal) / range);
+                    normalized_ul = (double)((solution[n_ul] - minVal) / range);
+                    normalized_ur = (double)((solution[n_ur] - minVal) / range);
 
 
                     Color color = Color.FromArgb(
@@ -1156,12 +1156,12 @@ namespace K2
                     // Координаты четырёх углов элемента
                     PointF[] points = new PointF[]
                     {
-                new PointF((global_net_x[j] - LXPoints[0]) * scale,
-                            panel1.Height - (global_net_y[i] - LYPoints[0]) * scale), //левый нижний 
-                new PointF((global_net_x[j+1] - LXPoints[0]) * scale,
-                            panel1.Height - (global_net_y[i] - LYPoints[0]) * scale), // правый нижний
-                new PointF((global_net_x[j+1] - LXPoints[0]) * scale,
-                            panel1.Height - (global_net_y[i+1] - LYPoints[0]) * scale)// правый верхний
+                new PointF((float)((global_net_x[j] - LXPoints[0]) * scale),
+                            (float)(panel1.Height - (global_net_y[i] - LYPoints[0]) * scale)), //левый нижний 
+                new PointF((float)((global_net_x[j+1] - LXPoints[0]) * scale),
+                            (float)(panel1.Height - (global_net_y[i] - LYPoints[0]) * scale)), // правый нижний
+                new PointF((float)((global_net_x[j+1] - LXPoints[0]) * scale),
+                            (float)(panel1.Height - (global_net_y[i+1] - LYPoints[0]) * scale))// правый верхний
                     };
                     using (var path = new GraphicsPath())
                     {
@@ -1184,12 +1184,12 @@ namespace K2
                     }
                     points = new PointF[]
                     {
-                new PointF((global_net_x[j] - LXPoints[0]) * scale,
-                            panel1.Height - (global_net_y[i] - LYPoints[0]) * scale), //левый нижний 
-                new PointF((global_net_x[j] - LXPoints[0]) * scale,
-                            panel1.Height - (global_net_y[i+1] - LYPoints[0]) * scale), // левый верхний
-                new PointF((global_net_x[j+1] - LXPoints[0]) * scale,
-                            panel1.Height - (global_net_y[i+1] - LYPoints[0]) * scale)// правый верхний
+                new PointF((float)((global_net_x[j] - LXPoints[0]) * scale),
+                            (float)(panel1.Height - (global_net_y[i] - LYPoints[0]) * scale)), //левый нижний 
+                new PointF((float)((global_net_x[j] - LXPoints[0]) * scale),
+                            (float)(panel1.Height - (global_net_y[i+1] - LYPoints[0]) * scale)), // левый верхний
+                new PointF((float)((global_net_x[j+1] - LXPoints[0]) * scale),
+                            (float)(panel1.Height - (global_net_y[i+1] - LYPoints[0]) * scale))// правый верхний
                     };
 
                     using (var path = new GraphicsPath())
@@ -1215,11 +1215,11 @@ namespace K2
             }
         }
 
-        private double FVal(float x, float y, double lambda, double gamma, int mode)
+        private double FVal(double x, double y, double lambda, double gamma, int mode)
         {
             double res = 0;
             switch (mode){
-                case 0: res = 1; break;
+                case 0: res = gamma; break;
                 case 1: res = (x + y) * gamma; break;
                 case 2: res = -lambda * 4 + (x*x + y*y) * gamma; break;
                 case 3: res = -lambda * (6 * x + 6 * y) + (Math.Pow(x, 3) + Math.Pow(y, 3)) * gamma; break;
@@ -1229,7 +1229,7 @@ namespace K2
             }
             return res;
         }
-        private double UVal(float x, float y, int mode)
+        private double UVal(double x, double y, int mode)
         {
             double res = 0;
             switch (mode)
@@ -1304,9 +1304,9 @@ namespace K2
             }
         }
 
-        private List<float> BuildGlobalNet(List<float> boundaries, List<float>[] splits, int degree) // сборка общего разбиения по оси с добавлением фиктивных узлов;deg = степень полинома базисной функции
+        private List<double> BuildGlobalNet(List<double> boundaries, List<double>[] splits, int degree) // сборка общего разбиения по оси с добавлением фиктивных узлов;deg = степень полинома базисной функции
         {
-            var result = new List<float>();
+            var result = new List<double>();
 
             for (int i = 0; i < splits.Count(); i++)
             {
@@ -1315,7 +1315,7 @@ namespace K2
                 {
                     for (int j = 1; j < splits[i].Count; j++)
                     {
-                        float left = splits[i][j - 1], right = splits[i][j], step = (right - left) / degree, new_point;
+                        double left = splits[i][j - 1], right = splits[i][j], step = (right - left) / degree, new_point;
                         for (int k = 1; k < degree; k++)
                         {
                             new_point = left + step * k;
@@ -1328,15 +1328,15 @@ namespace K2
             return result;
         }
 
-        private float CalcH(List<float> net_points, int start_pos, int deg) // список узлов на оси, степень базисного полинома
+        private double CalcH(List<double> net_points, int start_pos, int deg) // список узлов на оси, степень базисного полинома
         {
-            float res = 0;
+            double res = 0;
             int end_pos = start_pos + deg; // конец элемента = начало элемента + 1 + степень полинома - 1.
             res = net_points[end_pos] - net_points[start_pos];
             return res;
         }
 
-        private double[] BuildLocalF(List<float> x_net, List<float> y_net, double lambda, double gamma, int deg, int low_left_x, int low_left_y, int f_mode)
+        private double[] BuildLocalF(List<double> x_net, List<double> y_net, double lambda, double gamma, int deg, int low_left_x, int low_left_y, int f_mode)
         {
             // количество узлов в элементе по каждой оси равно deg+1
             int nodes_per_axis = deg + 1;
@@ -1351,7 +1351,7 @@ namespace K2
             return res;
         }
 
-        private int[] BuildLocalToGlobalArray(List<float> x_net, List<float> y_net, int deg, int low_left_x, int low_left_y)
+        private int[] BuildLocalToGlobalArray(List<double> x_net, List<double> y_net, int deg, int low_left_x, int low_left_y)
         {
             // количество узлов в элементе по каждой оси равно deg+1
             int nodes_per_axis = deg + 1;
@@ -1433,7 +1433,7 @@ namespace K2
             }
             return N;
         }
-        private int FindElementIndex(List<float> nodes, double coord, int deg)
+        private int FindElementIndex(List<double> nodes, double coord, int deg)
         {
             // Ищем элемент, содержащий coord
             // Элементы идут с шагом deg

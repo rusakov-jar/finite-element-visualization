@@ -12,26 +12,26 @@ namespace K2
     {
         Form1 _mainForm;
 
-        float cameraX = 0.0f;
-        float cameraY = 80.0f;
-        float cameraZ = 0.0f;
+        double cameraX = 0.0f;
+        double cameraY = 80.0f;
+        double cameraZ = 0.0f;
 
-        float targetX = 50.0f;
-        float targetY = 0.0f;
-        float targetZ = 50.0f;
+        double targetX = 50.0f;
+        double targetY = 0.0f;
+        double targetZ = 50.0f;
 
-        float upX = 0.0f;
-        float upY = 1.0f;
-        float upZ = 0.0f;
+        double upX = 0.0f;
+        double upY = 1.0f;
+        double upZ = 0.0f;
 
         // Углы для вращения мышью
-        float yaw = 45.0f;    // поворот влево/вправо
-        float pitch = -45.0f;   // наклон вверх/вниз
+        double yaw = 45.0f;    // поворот влево/вправо
+        double pitch = -45.0f;   // наклон вверх/вниз
 
         // Управление мышью
         bool mouseCaptured = false;
         System.Drawing.Point lastMousePos;
-        float mouseSensitivity = 0.3f;
+        double mouseSensitivity = 0.3f;
 
         bool keyW = false;
         bool keyA = false;
@@ -41,20 +41,20 @@ namespace K2
         bool keyE = false;
 
         // Скорость перемещения
-        float moveSpeed = 30.0f;
+        double moveSpeed = 30.0f;
 
         DateTime lastFrameTime;
 
         // Настройки нормализации высоты
-        float targetMinHeight = 0.0f;   // минимальная высота после нормализации
-        float targetMaxHeight = 100.0f;  // максимальная высота после нормализации
+        double targetMinHeight = 0.0f;   // минимальная высота после нормализации
+        double targetMaxHeight = 100.0f;  // максимальная высота после нормализации
 
         bool no_normalize = false;
         // настройки отображения
         bool show_green_box = true, show_surface = true, show_net = true, show_zero_y = true;
-        float x_size = 100.0f, z_size = 100.0f;
+        double x_size = 100.0f, z_size = 100.0f;
         int x_zero_lines_num = 10, z_zero_lines_num = 10;
-        float y_zero = 0;
+        double y_zero = 0;
 
         private List<ColorThreshold> thresholds = new List<ColorThreshold>()
         {
@@ -104,7 +104,7 @@ namespace K2
             gl.MatrixMode(OpenGL.GL_PROJECTION);
             gl.LoadIdentity();
 
-            float aspect = (float)openGLDrawingArea.Width / (float)openGLDrawingArea.Height;
+            double aspect = (double)openGLDrawingArea.Width / (double)openGLDrawingArea.Height;
             gl.Perspective(45.0f, aspect, 0.1f, 500.0f);
 
             gl.MatrixMode(OpenGL.GL_MODELVIEW);
@@ -114,7 +114,7 @@ namespace K2
         {
             // Расчёт времени между кадрами
             DateTime now = DateTime.Now;
-            float deltaTime = (float)(now - lastFrameTime).TotalSeconds;
+            double deltaTime = (double)(now - lastFrameTime).TotalSeconds;
             if (deltaTime > 0.1f) deltaTime = 0.1f;
             lastFrameTime = now;
 
@@ -154,12 +154,12 @@ namespace K2
                 gl.Begin(OpenGL.GL_QUADS);
                 for (int i = 0; i < x_strip_size - 1; i++)
                 {
-                    float x1 = ScaleX(_mainForm.global_net_x[i]);
-                    float x2 = ScaleX(_mainForm.global_net_x[i + 1]);
-                    float z = ScaleZ(0);
+                    double x1 = ScaleX(_mainForm.global_net_x[i]);
+                    double x2 = ScaleX(_mainForm.global_net_x[i + 1]);
+                    double z = ScaleZ(0);
 
-                    float y1 = (float)NormalizeHeight(_mainForm.solution[i], min_y, max_y);
-                    float y2 = (float)NormalizeHeight(_mainForm.solution[i + 1], min_y, max_y);
+                    double y1 = (double)NormalizeHeight(_mainForm.solution[i], min_y, max_y);
+                    double y2 = (double)NormalizeHeight(_mainForm.solution[i + 1], min_y, max_y);
 
                     gl.Vertex(x1, 0, z);
                     gl.Vertex(x2, 0, z);
@@ -170,11 +170,11 @@ namespace K2
                 gl.Begin(OpenGL.GL_QUADS);
                 for (int j = 0; j < z_strip_size - 1; j++)
                 {
-                    float z1 = ScaleZ(_mainForm.global_net_y[j]);
-                    float z2 = ScaleZ(_mainForm.global_net_y[j + 1]);
+                    double z1 = ScaleZ(_mainForm.global_net_y[j]);
+                    double z2 = ScaleZ(_mainForm.global_net_y[j + 1]);
 
-                    float y1 = (float)NormalizeHeight(_mainForm.solution[j * x_strip_size + 0], min_y, max_y);
-                    float y2 = (float)NormalizeHeight(_mainForm.solution[(j + 1) * x_strip_size + 0], min_y, max_y);
+                    double y1 = (double)NormalizeHeight(_mainForm.solution[j * x_strip_size + 0], min_y, max_y);
+                    double y2 = (double)NormalizeHeight(_mainForm.solution[(j + 1) * x_strip_size + 0], min_y, max_y);
 
                     gl.Vertex(0.0f, 0.0f, z1);
                     gl.Vertex(0.0f, 0.0f, z2);
@@ -185,12 +185,12 @@ namespace K2
                 gl.Begin(OpenGL.GL_QUADS);
                 for (int j = 0; j < z_strip_size - 1; j++)
                 {
-                    float z1 = ScaleZ(_mainForm.global_net_y[j]);
-                    float z2 = ScaleZ(_mainForm.global_net_y[j + 1]);
-                    float x = ScaleX(_mainForm.global_net_x[x_strip_size - 1]);
+                    double z1 = ScaleZ(_mainForm.global_net_y[j]);
+                    double z2 = ScaleZ(_mainForm.global_net_y[j + 1]);
+                    double x = ScaleX(_mainForm.global_net_x[x_strip_size - 1]);
 
-                    float y1 = (float)NormalizeHeight(_mainForm.solution[j * x_strip_size + (x_strip_size - 1)], min_y, max_y);
-                    float y2 = (float)NormalizeHeight(_mainForm.solution[(j + 1) * x_strip_size + (x_strip_size - 1)], min_y, max_y);
+                    double y1 = (double)NormalizeHeight(_mainForm.solution[j * x_strip_size + (x_strip_size - 1)], min_y, max_y);
+                    double y2 = (double)NormalizeHeight(_mainForm.solution[(j + 1) * x_strip_size + (x_strip_size - 1)], min_y, max_y);
 
                     gl.Vertex(x, 0.0f, z1);
                     gl.Vertex(x, 0.0f, z2);
@@ -201,12 +201,12 @@ namespace K2
                 gl.Begin(OpenGL.GL_QUADS);
                 for (int i = 0; i < x_strip_size - 1; i++)
                 {
-                    float x1 = ScaleX(_mainForm.global_net_x[i]);
-                    float x2 = ScaleX(_mainForm.global_net_x[i + 1]);
-                    float z = ScaleZ(_mainForm.global_net_y[z_strip_size - 1]);
+                    double x1 = ScaleX(_mainForm.global_net_x[i]);
+                    double x2 = ScaleX(_mainForm.global_net_x[i + 1]);
+                    double z = ScaleZ(_mainForm.global_net_y[z_strip_size - 1]);
 
-                    float y1 = (float)NormalizeHeight(_mainForm.solution[(z_strip_size - 1) * x_strip_size + i], min_y, max_y);
-                    float y2 = (float)NormalizeHeight(_mainForm.solution[(z_strip_size - 1) * x_strip_size + (i + 1)], min_y, max_y);
+                    double y1 = (double)NormalizeHeight(_mainForm.solution[(z_strip_size - 1) * x_strip_size + i], min_y, max_y);
+                    double y2 = (double)NormalizeHeight(_mainForm.solution[(z_strip_size - 1) * x_strip_size + (i + 1)], min_y, max_y);
 
                     gl.Vertex(x1, 0.0f, z);
                     gl.Vertex(x2, 0.0f, z);
@@ -221,13 +221,13 @@ namespace K2
         private void UpdateCameraDirection()
         {
             // Перевод градусов в радианы
-            float yawRad = yaw * (float)Math.PI / 180.0f;
-            float pitchRad = pitch * (float)Math.PI / 180.0f;
+            double yawRad = yaw * Math.PI / 180.0;
+            double pitchRad = pitch * Math.PI / 180.0;
 
             // Вектор направления взгляда
-            float frontX = (float)(Math.Cos(yawRad) * Math.Cos(pitchRad));
-            float frontY = (float)(Math.Sin(pitchRad));
-            float frontZ = (float)(Math.Sin(yawRad) * Math.Cos(pitchRad));
+            double frontX = (Math.Cos(yawRad) * Math.Cos(pitchRad));
+            double frontY = (Math.Sin(pitchRad));
+            double frontZ = (Math.Sin(yawRad) * Math.Cos(pitchRad));
 
             targetX = cameraX + frontX;
             targetY = cameraY + frontY;
@@ -248,8 +248,8 @@ namespace K2
         {
             if (mouseCaptured)
             {
-                float deltaX = e.X - lastMousePos.X;
-                float deltaY = e.Y - lastMousePos.Y;
+                double deltaX = e.X - lastMousePos.X;
+                double deltaY = e.Y - lastMousePos.Y;
 
                 yaw += deltaX * mouseSensitivity;
                 pitch -= deltaY * mouseSensitivity;
@@ -271,15 +271,15 @@ namespace K2
             }
         }
 
-        private void UpdateCameraPosition(float deltaTime)
+        private void UpdateCameraPosition(double deltaTime)
         {
             // Вычисляем векторы направления камеры
-            float frontX = targetX - cameraX;
-            float frontY = targetY - cameraY;
-            float frontZ = targetZ - cameraZ;
+            double frontX = targetX - cameraX;
+            double frontY = targetY - cameraY;
+            double frontZ = targetZ - cameraZ;
 
             // Нормализуем вектор направления
-            float len = (float)Math.Sqrt(frontX * frontX + frontY * frontY + frontZ * frontZ);
+            double len = Math.Sqrt(frontX * frontX + frontY * frontY + frontZ * frontZ);
             if (len > 0.0001f)
             {
                 frontX /= len;
@@ -288,12 +288,12 @@ namespace K2
             }
 
             // Вычисляем правый вектор (перпендикулярно направлению и вектору вверх)
-            float rightX = frontY * upZ - frontZ * upY;
-            float rightY = frontZ * upX - frontX * upZ;
-            float rightZ = frontX * upY - frontY * upX;
+            double rightX = frontY * upZ - frontZ * upY;
+            double rightY = frontZ * upX - frontX * upZ;
+            double rightZ = frontX * upY - frontY * upX;
 
             // Нормализуем правый вектор
-            len = (float)Math.Sqrt(rightX * rightX + rightY * rightY + rightZ * rightZ);
+            len = Math.Sqrt(rightX * rightX + rightY * rightY + rightZ * rightZ);
             if (len > 0.0001f)
             {
                 rightX /= len;
@@ -302,7 +302,7 @@ namespace K2
             }
 
             // Перемещение
-            float velocity = moveSpeed * deltaTime;
+            double velocity = moveSpeed * deltaTime;
 
             if (keyW) // Вперёд
             {
@@ -370,7 +370,7 @@ namespace K2
             show_net = checkBoxNet.Checked;
             show_surface = checkBoxSolution.Checked;
             show_zero_y = checkBoxY0.Checked;
-            if (!float.TryParse(textBoxZeroY.Text, out y_zero)) { y_zero = 0; textBoxZeroY.Text = "0"; }
+            if (!double.TryParse(textBoxZeroY.Text, out y_zero)) { y_zero = 0; textBoxZeroY.Text = "0"; }
             panel1.Invalidate();
             panelLegend.Invalidate();
         }
@@ -386,10 +386,10 @@ namespace K2
             int nx = xNodes.Count;
             int nz = zNodes.Count;
 
-            float GetRawHeight(int i, int j) => (float)flatSolution[i * nx + j];
+            double GetRawHeight(int i, int j) => flatSolution[i * nx + j];
 
             // Находим min и max высоты
-            float rawMinY = (float)flatSolution.Min(), rawMaxY = (float)flatSolution.Max();
+            double rawMinY = flatSolution.Min(), rawMaxY = flatSolution.Max();
 
             if (rawMinY != 0)
             {
@@ -402,18 +402,18 @@ namespace K2
                 gl.Begin(OpenGL.GL_QUADS);
                 for (int i = 0; i < nz - 1; i++)
                 {
-                    float z1 = ScaleZ(zNodes[i]);
-                    float z2 = ScaleZ(zNodes[i + 1]);
+                    double z1 = ScaleZ(zNodes[i]);
+                    double z2 = ScaleZ(zNodes[i + 1]);
 
                     for (int j = 0; j < nx - 1; j++)
                     {
-                        float x1 = ScaleX(xNodes[j]);
-                        float x2 = ScaleX(xNodes[j + 1]);
+                        double x1 = ScaleX(xNodes[j]);
+                        double x2 = ScaleX(xNodes[j + 1]);
 
-                        float rawY11 = GetRawHeight(i, j);
-                        float rawY12 = GetRawHeight(i, j + 1);
-                        float rawY21 = GetRawHeight(i + 1, j);
-                        float rawY22 = GetRawHeight(i + 1, j + 1);
+                        double rawY11 = GetRawHeight(i, j);
+                        double rawY12 = GetRawHeight(i, j + 1);
+                        double rawY21 = GetRawHeight(i + 1, j);
+                        double rawY22 = GetRawHeight(i + 1, j + 1);
 
                         double y11 = NormalizeHeight(rawY11, rawMinY, rawMaxY);
                         double y12 = NormalizeHeight(rawY12, rawMinY, rawMaxY);
@@ -421,19 +421,19 @@ namespace K2
                         double y22 = NormalizeHeight(rawY22, rawMinY, rawMaxY);
 
 
-                        Color color = GetColorByAbsoluteValue((float)rawY11);
+                        Color color = GetColorByAbsoluteValue(rawY11);
                         gl.Color(color.R / 255.0f, color.G / 255.0f, color.B / 255.0f);
                         gl.Vertex(x1, y11, z1);
 
-                        color = GetColorByAbsoluteValue((float)rawY21);
+                        color = GetColorByAbsoluteValue(rawY21);
                         gl.Color(color.R / 255.0f, color.G / 255.0f, color.B / 255.0f);
                         gl.Vertex(x1, y21, z2);
 
-                        color = GetColorByAbsoluteValue((float)rawY22);
+                        color = GetColorByAbsoluteValue(rawY22);
                         gl.Color(color.R / 255.0f, color.G / 255.0f, color.B / 255.0f);
                         gl.Vertex(x2, y22, z2);
 
-                        color = GetColorByAbsoluteValue((float)rawY12);
+                        color = GetColorByAbsoluteValue(rawY12);
                         gl.Color(color.R / 255.0f, color.G / 255.0f, color.B / 255.0f);
                         gl.Vertex(x2, y12, z1);
                     }
@@ -452,13 +452,13 @@ namespace K2
                 // Линии вдоль X (горизонтальные)
                 for (int i = 0; i < nz; i++)
                 {
-                    float z = ScaleZ(zNodes[i]);
+                    double z = ScaleZ(zNodes[i]);
                     for (int j = 0; j < nx - 1; j++)
                     {
-                        float x1 = ScaleX(xNodes[j]);
-                        float x2 = ScaleX(xNodes[j + 1]);
-                        float y1 = (float)NormalizeHeight(GetRawHeight(i, j), rawMinY, rawMaxY) + 0.001f * targetMaxHeight;
-                        float y2 = (float)NormalizeHeight(GetRawHeight(i, j + 1), rawMinY, rawMaxY) + 0.001f * targetMaxHeight;
+                        double x1 = ScaleX(xNodes[j]);
+                        double x2 = ScaleX(xNodes[j + 1]);
+                        double y1 = NormalizeHeight(GetRawHeight(i, j), rawMinY, rawMaxY) + 0.001f * targetMaxHeight;
+                        double y2 = NormalizeHeight(GetRawHeight(i, j + 1), rawMinY, rawMaxY) + 0.001f * targetMaxHeight;
 
                         gl.Vertex(x1, y1, z);
                         gl.Vertex(x2, y2, z);
@@ -468,13 +468,13 @@ namespace K2
                 // Линии вдоль Z (вертикальные)
                 for (int j = 0; j < nx; j++)
                 {
-                    float x = ScaleX(xNodes[j]);
+                    double x = ScaleX(xNodes[j]);
                     for (int i = 0; i < nz - 1; i++)
                     {
-                        float z1 = ScaleZ(zNodes[i]);
-                        float z2 = ScaleZ(zNodes[i + 1]);
-                        float y1 = (float)NormalizeHeight(GetRawHeight(i, j), rawMinY, rawMaxY) + 0.001f * targetMaxHeight;
-                        float y2 = (float)NormalizeHeight(GetRawHeight(i + 1, j), rawMinY, rawMaxY) + 0.001f * targetMaxHeight;
+                        double z1 = ScaleZ(zNodes[i]);
+                        double z2 = ScaleZ(zNodes[i + 1]);
+                        double y1 = NormalizeHeight(GetRawHeight(i, j), rawMinY, rawMaxY) + 0.001f * targetMaxHeight;
+                        double y2 = NormalizeHeight(GetRawHeight(i + 1, j), rawMinY, rawMaxY) + 0.001f * targetMaxHeight;
 
                         gl.Vertex(x, y1, z1);
                         gl.Vertex(x, y2, z2);
@@ -484,7 +484,7 @@ namespace K2
             }
             if (show_zero_y)
             {
-                float x_step = x_size / x_zero_lines_num, z_step = z_size / z_zero_lines_num;
+                double x_step = x_size / x_zero_lines_num, z_step = z_size / z_zero_lines_num;
                 gl.Begin(OpenGL.GL_LINES);
                 for (int i = 0; i <= x_zero_lines_num; i++)
                 {
@@ -527,14 +527,14 @@ namespace K2
             // Проход по интервалам между порогами
             for (int idx = 0; idx < sorted.Count - 1; idx++)
             {
-                float startVal = sorted[idx].Value;
-                float endVal = sorted[idx + 1].Value;
+                double startVal = sorted[idx].Value;
+                double endVal = sorted[idx + 1].Value;
                 Color startColor = sorted[idx].Color;
                 Color endColor = sorted[idx + 1].Color;
 
                 // Вычисляем Y-координаты для начала и конца интервала
-                float tStart = (startVal - thresholds[0].Value) / (thresholds.Last().Value - thresholds[0].Value);
-                float tEnd = (endVal - thresholds[0].Value) / (thresholds.Last().Value - thresholds[0].Value);
+                double tStart = (startVal - thresholds[0].Value) / (thresholds.Last().Value - thresholds[0].Value);
+                double tEnd = (endVal - thresholds[0].Value) / (thresholds.Last().Value - thresholds[0].Value);
 
                 int yStart = (int)(height * (tStart));
                 int yEnd = (int)(height * (tEnd));
@@ -542,7 +542,7 @@ namespace K2
 
                 for (int y = yStart; y <= yEnd; y++)
                 {
-                    float t = (float)(y - yStart) / (yEnd - yStart);
+                    double t = (y - yStart) / (yEnd - yStart);
                     Color color = InterpolateColor(startColor, endColor, t);
                     using (Pen pen = new Pen(color))
                     {
@@ -571,21 +571,21 @@ namespace K2
             }
         }
 
-        private float ScaleX(float x)
+        private double ScaleX(double x)
         {
-            float minX = _mainForm.global_net_x.Min();
-            float maxX = _mainForm.global_net_x.Max();
+            double minX = _mainForm.global_net_x.Min();
+            double maxX = _mainForm.global_net_x.Max();
             return (x - minX) / (maxX - minX) * x_size;
         }
 
-        private float ScaleZ(float z)
+        private double ScaleZ(double z)
         {
-            float minZ = _mainForm.global_net_y.Min();
-            float maxZ = _mainForm.global_net_y.Max();
+            double minZ = _mainForm.global_net_y.Min();
+            double maxZ = _mainForm.global_net_y.Max();
             return (z - minZ) / (maxZ - minZ) * z_size;
         }
 
-        private Color GetColorByAbsoluteValue(float value)
+        private Color GetColorByAbsoluteValue(double value)
         {
             if (thresholds.Count == 0) return Color.Black;
 
@@ -605,7 +605,7 @@ namespace K2
             {
                 if (value >= sorted[i].Value && value <= sorted[i + 1].Value)
                 {
-                    float t = (value - sorted[i].Value) / (sorted[i + 1].Value - sorted[i].Value);
+                    double t = (value - sorted[i].Value) / (sorted[i + 1].Value - sorted[i].Value);
                     return InterpolateColor(sorted[i].Color, sorted[i + 1].Color, t);
                 }
             }
@@ -613,7 +613,7 @@ namespace K2
             return Color.Black;
         }
 
-        private Color InterpolateColor(Color a, Color b, float t)
+        private Color InterpolateColor(Color a, Color b, double t)
         {
             // Ограничиваем t в пределах [0, 1]
             if (t < 0) t = 0;
@@ -629,9 +629,9 @@ namespace K2
         {
             if (sortedThresholds == null || sortedThresholds.Count == 0) return;
 
-            float minValue = sortedThresholds.First().Value;
-            float maxValue = sortedThresholds.Last().Value;
-            float range = maxValue - minValue;
+            double minValue = sortedThresholds.First().Value;
+            double maxValue = sortedThresholds.Last().Value;
+            double range = maxValue - minValue;
 
             if (range < 0.0001f) range = 1;
 
@@ -642,7 +642,7 @@ namespace K2
                 foreach (var threshold in sortedThresholds)
                 {
                     // Вычисляем Y-координату маркера (0 = верх, height = низ)
-                    float t = (threshold.Value - minValue) / range;
+                    double t = (threshold.Value - minValue) / range;
                     int y = (int)(height * (1 - t));
 
                     // Ограничиваем, чтобы не вылезать за пределы
@@ -654,12 +654,12 @@ namespace K2
                     // Рисуем значение справа от маркера
                     string valueText = threshold.Value.ToString("F1");
                     SizeF textSize = g.MeasureString(valueText, font);
-                    float textX = width - textSize.Width - 18;
-                    float textY = y - textSize.Height / 2;
+                    double textX = width - textSize.Width - 18;
+                    double textY = y - textSize.Height / 2;
 
                     // Белый фон для читаемости
-                    g.FillRectangle(Brushes.White, textX - 2, textY - 1, textSize.Width + 4, textSize.Height + 2);
-                    g.DrawString(valueText, font, textBrush, textX, textY);
+                    g.FillRectangle(Brushes.White, (float)textX - 2, (float)textY - 1, textSize.Width + 4, textSize.Height + 2);
+                    g.DrawString(valueText, font, textBrush, (float)textX, (float)textY);
                 }
             }
         }
@@ -667,7 +667,7 @@ namespace K2
 
     public class ColorThreshold
     {
-        public float Value { get; set; }
+        public double Value { get; set; }
         public Color Color { get; set; }
     }
 }

@@ -41,50 +41,72 @@ namespace K2
             public int[] ja;      // номера столбцов, размер k
         }
 
-        public static SparseMatrix BuildPortrait(int nx, int ny, int nodesPerElement)
+        public static SparseMatrix BuildPortrait(int nx, int ny, int nodesPerElementAxis)
         {
             int N = nx * ny;
-            var jaSet = new SortedSet<int>[N];
+
+            var jaSet = new List<int>[N];
             for (int i = 0; i < N; i++)
-                jaSet[i] = new SortedSet<int>();
+                jaSet[i] = new List<int>();
 
-            // Добавление связи (только нижний треугольник)
-            void AddLink(int row, int col)
-            {
-                if (row == col) return;
-                if (col < row)
-                    jaSet[row].Add(col);
-                else
-                    jaSet[col].Add(row);
-            }
+            // Количество элементов по осям
+            int xElementsNum = (nx - 1) / (nodesPerElementAxis - 1);
+            int yElementsNum = (ny - 1) / (nodesPerElementAxis - 1);
 
-            // Цикл по элементам
-            for (int i = 0; i <= ny - nodesPerElement; i++)
+            // Буфер для глобальных индексов узлов одного элемента
+            int nodesPerElement = nodesPerElementAxis * nodesPerElementAxis;
+            int[] elementNodes = new int[nodesPerElement];
+
+            // Цикл по элементам сетки
+            for (int elementRow = 0; elementRow < yElementsNum; elementRow++)
             {
-                for (int j = 0; j <= nx - nodesPerElement; j++)
+                for (int elementCol = 0; elementCol < xElementsNum; elementCol++)
                 {
-                    // Собираем глобальные индексы всех узлов элемента
-                    int[] elementNodes = new int[nodesPerElement * nodesPerElement];
-                    int idx = 0;
-                    for (int di = 0; di < nodesPerElement; di++)
-                        for (int dj = 0; dj < nodesPerElement; dj++)
-                            elementNodes[idx++] = (i + di) * nx + (j + dj);
+                    // Вычисляем глобальные координаты левого нижнего узла элемента
+                    int globalNodeRow = elementRow * (nodesPerElementAxis - 1);
+                    int globalNodeCol = elementCol * (nodesPerElementAxis - 1);
+                    int globalCornerNodeNum = globalNodeRow * nx + globalNodeCol;
 
-                    // Добавляем связи между всеми парами узлов
-                    for (int p = 0; p < elementNodes.Length; p++)
-                        for (int q = p + 1; q < elementNodes.Length; q++)
-                            AddLink(elementNodes[p], elementNodes[q]);
+                    // Собираем глобальные индексы всех узлов элемента
+                    int idx = 0;
+                    for (int localNodeRow = 0; localNodeRow < nodesPerElementAxis; localNodeRow++)
+                    {
+                        for (int localNodeCol = 0; localNodeCol < nodesPerElementAxis; localNodeCol++)
+                        {
+                            elementNodes[idx++] = globalCornerNodeNum + localNodeRow * nx + localNodeCol;
+                        }
+                    }
+
+                    // Связываем все узлы элемента (строго нижний треугольник)
+                    for (int p = 0; p < nodesPerElement; p++)
+                    {
+                        for (int q = 0; q < nodesPerElement; q++)
+                        {
+                            int row = elementNodes[p];
+                            int col = elementNodes[q];
+
+                            // Добавляем в портрет только нижний треугольник (row > col)
+                            if (row > col)
+                            {
+                                jaSet[row].Add(col);
+                            }
+                        }
+                    }
                 }
             }
 
-            // Формируем ia и ja из jaSet
+            // Формируем ia и ja
             int[] ia = new int[N + 1];
             List<int> jaList = new List<int>();
 
             for (int row = 0; row < N; row++)
             {
                 ia[row] = jaList.Count;
-                foreach (int col in jaSet[row])
+
+                // Сортировка и удаление дубликатов
+                var uniqueSortedCols = jaSet[row].Distinct().OrderBy(c => c);
+
+                foreach (int col in uniqueSortedCols)
                     jaList.Add(col);
             }
             ia[N] = jaList.Count;
@@ -182,59 +204,59 @@ namespace K2
                 globalB[gi] += b_local[i];
             }
         }
-        public void applyBoundaryCondition(Dictionary<int, double> dict, int deg)
+
+        public void applyBoundaryCondition(Dictionary<int, double> dict)
         {
-            int Nx = this.Nx;
-            int Ny = this.Ny;
-            int N = Nx * Ny;
+            int N = this.Nx * this.Ny;
 
-            int searchRadius = deg; // для билинейного = 1, биквадратичного = 2, бикубического = 3
-
-            foreach (int node in dict.Keys)
+            foreach (var kvp in dict)
             {
-                double value = dict[node];
+                int node = kvp.Key;
+                double value = kvp.Value;
 
-                int nodeX = node % Nx;
-                int nodeY = node / Nx;
-
-                // --- 1. Нижний треугольник (col < node) ---
+                // Зануляем нижний треугольник для текущей строки (col < node)
                 for (int k = sparse_matrix.ia[node]; k < sparse_matrix.ia[node + 1]; k++)
                 {
                     int col = sparse_matrix.ja[k];
-                    globalB[col] -= sparse_matrix.al[k] * value;
+
+                    if (!dict.Keys.Contains(col))
+                    {
+                        globalB[col] -= sparse_matrix.al[k] * value;
+                    }
                     sparse_matrix.al[k] = 0.0;
                 }
-                // Перебираем все возможные сдвиги в пределах searchRadius
-                for (int dy = -searchRadius; dy <= searchRadius; dy++)
-                {
-                    for (int dx = -searchRadius; dx <= searchRadius; dx++)
-                    {
-                        if (dx == 0 && dy == 0) continue;
 
-                        int rowX = nodeX + dx;
-                        int rowY = nodeY + dy;
-
-                        if (rowX >= 0 && rowX < Nx && rowY >= 0 && rowY < Ny)
-                        {
-                            int row = rowY * Nx + rowX;
-                            if (row > node)
-                            {
-                                int idx = GetAlIndex(row, node, sparse_matrix.ia, sparse_matrix.ja);
-                                if (idx != -1)
-                                {
-                                    globalB[row] -= sparse_matrix.al[idx] * value;
-                                    sparse_matrix.al[idx] = 0.0;
-                                }
-                            }
-                        }
-                    }
-                }
-
+                // Выставляем значение на диагональ
                 sparse_matrix.di[node] = 1.0;
                 globalB[node] = value;
             }
-        }
 
+            // Шаг 2. Зануляем столбцы (Верхний треугольник, где row > col)
+            // Вместо поиска соседей по радиусу, мы просто бежим по ВСЕМ строкам матрицы один раз.
+            // Это гарантирует 100% корректность для любого порядка элементов и любой сетки.
+            for (int row = 0; row < N; row++)
+            {
+                // Если сама строка является граничной, её нижний треугольник мы уже занулили на Шаге 1
+                bool isRowBoundary = dict.ContainsKey(row);
+                if (isRowBoundary)
+                    continue;
+
+                for (int k = sparse_matrix.ia[row]; k < sparse_matrix.ia[row + 1]; k++)
+                {
+                    int col = sparse_matrix.ja[k]; // В нижнем треугольнике col всегда < row
+
+                    // Если столбец (col) является граничным узлом Дирихле
+                    if (dict.TryGetValue(col, out double boundaryValue))
+                    {
+                        // переносим известное значение в правую часть
+                        globalB[row] -= sparse_matrix.al[k] * boundaryValue;
+
+                        // В любом случае зануляем этот элемент матрицы для сохранения симметрии
+                        sparse_matrix.al[k] = 0.0;
+                    }
+                }
+            }
+        }
         public void Multiply(double[] x, double[] y)
         {
             int N = Nx * Ny;
