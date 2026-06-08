@@ -46,6 +46,7 @@
             this.checkBoxShowElementBorder = new System.Windows.Forms.CheckBox();
             this.label7 = new System.Windows.Forms.Label();
             this.BasisNumericUpDown = new System.Windows.Forms.NumericUpDown();
+            this.checkBoxShowSolution = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.PresetNumericUpDown1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.BasisNumericUpDown)).BeginInit();
             this.SuspendLayout();
@@ -250,11 +251,24 @@
             0,
             0});
             // 
+            // checkBoxShowSolution
+            // 
+            this.checkBoxShowSolution.AutoSize = true;
+            this.checkBoxShowSolution.Checked = true;
+            this.checkBoxShowSolution.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBoxShowSolution.Location = new System.Drawing.Point(387, 105);
+            this.checkBoxShowSolution.Name = "checkBoxShowSolution";
+            this.checkBoxShowSolution.Size = new System.Drawing.Size(136, 20);
+            this.checkBoxShowSolution.TabIndex = 21;
+            this.checkBoxShowSolution.Text = "Грубое решение";
+            this.checkBoxShowSolution.UseVisualStyleBackColor = true;
+            // 
             // Settings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(537, 651);
+            this.Controls.Add(this.checkBoxShowSolution);
             this.Controls.Add(this.BasisNumericUpDown);
             this.Controls.Add(this.label7);
             this.Controls.Add(this.checkBoxShowElementBorder);
@@ -301,5 +315,6 @@
         private System.Windows.Forms.CheckBox checkBoxShowElementBorder;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.NumericUpDown BasisNumericUpDown;
+        private System.Windows.Forms.CheckBox checkBoxShowSolution;
     }
 }

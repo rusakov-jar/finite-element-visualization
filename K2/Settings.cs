@@ -15,7 +15,7 @@ namespace K2
         public float eps;
         public float q1, q2;
         public string mode;
-        public bool show_net, show_triag_border, show_element_border;
+        public bool show_net, show_triag_border, show_element_border, show_solution;
         public int preset_num, basis_num;
 
         public Settings()
@@ -55,6 +55,7 @@ namespace K2
             show_net = checkBoxShowNetLines.Checked;
             show_triag_border = checkBoxTriagLine.Checked;
             show_element_border = checkBoxShowElementBorder.Checked;
+            show_solution = checkBoxShowSolution.Checked;
             listBoxMode.Text = mode;
             Close();
         }

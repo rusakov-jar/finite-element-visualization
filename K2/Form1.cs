@@ -32,7 +32,7 @@ namespace K2
         public string settings_str;
         public double eps, q1, q2;
         public string mode;
-        bool show_subarea_border = true, show_triangle_border = true, show_element_border = true;
+        bool show_subarea_border = true, show_triangle_border = true, show_element_border = true, show_solution = true;
 
         int preset_num, basis_num;
 
@@ -70,7 +70,7 @@ namespace K2
         {
             Graphics g = panel1.CreateGraphics();
             g.Clear(Color.White);
-            if (solution != null)
+            if (solution != null && show_solution)
             {
                 DrawSolution(g);
             }
@@ -606,6 +606,7 @@ namespace K2
             show_subarea_border = newForm.show_net;
             show_triangle_border = newForm.show_triag_border;
             show_element_border = newForm.show_element_border;
+            show_solution = newForm.show_solution;
         }
 
         private void button5_Click(object sender, EventArgs e)
@@ -959,7 +960,7 @@ namespace K2
 
         private void panelLegend_Paint(object sender, PaintEventArgs e)
         {
-            if (solution == null) { return; }
+            if (solution == null || !show_solution) { return; }
             Graphics g = e.Graphics;
             int width = panelLegend.Width;
             int height = panelLegend.Height;
