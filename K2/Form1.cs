@@ -1312,16 +1312,23 @@ namespace K2
             for (int i = 0; i < splits.Count(); i++)
             {
                 result.Add(boundaries[i]);
-                if ((splits[i] != null))
+                if (splits[i] == null)
                 {
-                    for (int j = 1; j < splits[i].Count; j++)
+                    splits[i] = new List<double>();
+                    splits[i].Add(boundaries[i]);
+                    splits[i].Add(boundaries[i + 1]);
+
+                }
+                for (int j = 1; j < splits[i].Count; j++)
+                {
+                    double left = splits[i][j - 1], right = splits[i][j], step = (right - left) / degree, new_point;
+                    for (int k = 1; k < degree; k++)
                     {
-                        double left = splits[i][j - 1], right = splits[i][j], step = (right - left) / degree, new_point;
-                        for (int k = 1; k < degree; k++)
-                        {
-                            new_point = left + step * k;
-                            result.Add(new_point);
-                        }
+                        new_point = left + step * k;
+                        result.Add(new_point);
+                    }
+                    if(j <  splits[i].Count - 1 || i == splits.Count() - 1)
+                    {
                         result.Add(splits[i][j]);
                     }
                 }
