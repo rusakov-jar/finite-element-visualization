@@ -231,19 +231,16 @@ namespace K2
                 globalB[node] = value;
             }
 
-            // Шаг 2. Зануляем столбцы (Верхний треугольник, где row > col)
-            // Вместо поиска соседей по радиусу, мы просто бежим по ВСЕМ строкам матрицы один раз.
-            // Это гарантирует 100% корректность для любого порядка элементов и любой сетки.
+            // Зануляем столбцы (Верхний треугольник, где row > col)
             for (int row = 0; row < N; row++)
             {
-                // Если сама строка является граничной, её нижний треугольник мы уже занулили на Шаге 1
                 bool isRowBoundary = dict.ContainsKey(row);
                 if (isRowBoundary)
                     continue;
 
                 for (int k = sparse_matrix.ia[row]; k < sparse_matrix.ia[row + 1]; k++)
                 {
-                    int col = sparse_matrix.ja[k]; // В нижнем треугольнике col всегда < row
+                    int col = sparse_matrix.ja[k]; 
 
                     // Если столбец (col) является граничным узлом Дирихле
                     if (dict.TryGetValue(col, out double boundaryValue))

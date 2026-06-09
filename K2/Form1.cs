@@ -257,10 +257,10 @@ namespace K2
         {
             listBoxX.Enabled = true;
             listBoxY.Enabled = true;
-            labelMinX.Text = orig_x1.ToString();
-            labelMaxX.Text = orig_x2.ToString();
-            labelMinY.Text = orig_y1.ToString();
-            labelMaxY.Text = orig_y2.ToString();
+            labelMinX.Text = orig_x1.ToString("0.##");
+            labelMaxX.Text = orig_x2.ToString("0.##");
+            labelMinY.Text = orig_y1.ToString("0.##");
+            labelMaxY.Text = orig_y2.ToString("0.##");
             textBoxAddXPoint.Enabled = true;
             textBoxAddYPoint.Enabled = true;
             button_addXpoint.Enabled = true;
@@ -681,7 +681,7 @@ namespace K2
             {
                 using (StreamWriter writer = new StreamWriter(filename, false, Encoding.UTF8))
                 {
-                    // 1. Сохраняем глобальные параметры
+                    // глобальные параметры
                     writer.WriteLine("[GlobalParams]");
                     writer.WriteLine($"eps={eps}");
                     writer.WriteLine($"q1={q1}");
@@ -691,7 +691,7 @@ namespace K2
                     writer.WriteLine($"initial_scale={initial_scale}");
                     writer.WriteLine();
 
-                    // 2. Сохраняем размеры области
+                    // размеры области
                     writer.WriteLine("[Area]");
                     writer.WriteLine($"x1={orig_x1}");
                     writer.WriteLine($"x2={orig_x2}");
@@ -701,7 +701,7 @@ namespace K2
                     writer.WriteLine($"height={orig_height}");
                     writer.WriteLine();
 
-                    // 3. Сохраняем основные разбиения (LXPoints, LYPoints)
+                    // основные разбиения (LXPoints, LYPoints)
                     writer.WriteLine("[LXPoints]");
                     writer.WriteLine($"count={LXPoints.Count}");
                     for (int i = 0; i < LXPoints.Count; i++)
@@ -714,7 +714,7 @@ namespace K2
                         writer.WriteLine($"LYPoints[{i}]={LYPoints[i]}");
                     writer.WriteLine();
 
-                    // 4. Сохраняем XSplits
+                    // XSplits
                     writer.WriteLine("[XSplits]");
                     writer.WriteLine($"count={XSplits.Length}");
                     for (int i = 0; i < XSplits.Length; i++)
@@ -732,7 +732,7 @@ namespace K2
                     }
                     writer.WriteLine();
 
-                    // 5. Сохраняем YSplits
+                    // YSplits
                     writer.WriteLine("[YSplits]");
                     writer.WriteLine($"count={YSplits.Length}");
                     for (int i = 0; i < YSplits.Length; i++)
@@ -750,7 +750,7 @@ namespace K2
                     }
                     writer.WriteLine();
 
-                    // 6. Сохраняем подобласти (subareas)
+                    // подобласти (subareas)
                     writer.WriteLine("[Subareas]");
                     writer.WriteLine($"rows={subareas.GetLength(0)}");
                     writer.WriteLine($"cols={subareas.GetLength(1)}");
@@ -789,7 +789,7 @@ namespace K2
                     }
                     writer.WriteLine();
 
-                    // 7. Сохраняем решение (если есть)
+                    // Сохраняем решение (если есть)
                     writer.WriteLine("[Solution]");
                     if (solution != null)
                     {
@@ -984,9 +984,9 @@ namespace K2
             // Подписываем min и max значения
             double minValue = (double)solution.Min();
             double maxValue = (double)solution.Max();
-            labelMax.Text = maxValue.ToString();
-            labelMin.Text = minValue.ToString();
-            labelMed.Text = ((maxValue + minValue) / 2).ToString();
+            labelMax.Text = maxValue.ToString("0.##");
+            labelMin.Text = minValue.ToString("0.##");
+            labelMed.Text = ((maxValue + minValue) / 2).ToString("0.##");
         }
 
         private void buttonShow3D_Click(object sender, EventArgs e)
