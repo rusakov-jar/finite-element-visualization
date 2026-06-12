@@ -167,7 +167,7 @@ namespace K2
                 {
                     double x1 = ScaleX(_mainForm.global_net_x[i]);
                     double x2 = ScaleX(_mainForm.global_net_x[i + 1]);
-                    double z = ScaleZ(0);
+                    double z = ScaleZ(_mainForm.global_net_y[0]);
 
                     double y1 = (double)NormalizeHeight(_mainForm.solution[i], min_y, max_y);
                     double y2 = (double)NormalizeHeight(_mainForm.solution[i + 1], min_y, max_y);
