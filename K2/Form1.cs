@@ -802,6 +802,33 @@ namespace K2
                     {
                         writer.WriteLine($"exists=false");
                     }
+
+                    // Сохраняем global_net_x и global_net_y (полная расчётная сетка)
+                    writer.WriteLine("[GlobalNetX]");
+                    if (global_net_x != null)
+                    {
+                        writer.WriteLine($"count={global_net_x.Count}");
+                        for (int i = 0; i < global_net_x.Count; i++)
+                            writer.WriteLine($"global_net_x[{i}]={global_net_x[i]}");
+                    }
+                    else
+                    {
+                        writer.WriteLine("count=0");
+                    }
+                    writer.WriteLine();
+
+                    writer.WriteLine("[GlobalNetY]");
+                    if (global_net_y != null)
+                    {
+                        writer.WriteLine($"count={global_net_y.Count}");
+                        for (int i = 0; i < global_net_y.Count; i++)
+                            writer.WriteLine($"global_net_y[{i}]={global_net_y[i]}");
+                    }
+                    else
+                    {
+                        writer.WriteLine("count=0");
+                    }
+                    writer.WriteLine();
                 }
 
                 MessageBox.Show($"Состояние сохранено в файл:\n{filename}", "Сохранение");
@@ -835,8 +862,10 @@ namespace K2
                     int lyPointsCount = 0;
                     int xSplitsCount = 0;
                     int ySplitsCount = 0;
-                    int subareasRows = 0;
-                    int subareasCols = 0;
+
+                    // Для глобальных сеток
+                    int globalNetXCount = 0;
+                    int globalNetYCount = 0;
 
                     while ((line = reader.ReadLine()) != null)
                     {
@@ -907,7 +936,21 @@ namespace K2
                                     xSplitsCount = int.Parse(value);
                                     XSplits = new List<double>[xSplitsCount];
                                 }
-                                // Обработка элементов XSplits
+                                else if (key.StartsWith("XSplits[") && key.Contains("]_count"))
+                                {
+                                    int idx = int.Parse(key.Substring(8, key.IndexOf(']') - 8));
+                                    int count = int.Parse(value);
+                                    XSplits[idx] = new List<double>(new double[count]);
+                                }
+                                else if (key.StartsWith("XSplits[") && key.Contains("]["))
+                                {
+                                    int idx = int.Parse(key.Substring(8, key.IndexOf(']') - 8));
+                                    int j_str_start = key.IndexOf(']') + 2;
+                                    string sub = key.Substring(j_str_start, key.LastIndexOf(']') - j_str_start);
+                                    int jdx = int.Parse(sub);
+                                    if (XSplits[idx] != null && jdx < XSplits[idx].Count)
+                                        XSplits[idx][jdx] = double.Parse(value);
+                                }
                                 break;
 
                             case "YSplits":
@@ -916,14 +959,20 @@ namespace K2
                                     ySplitsCount = int.Parse(value);
                                     YSplits = new List<double>[ySplitsCount];
                                 }
-                                break;
-
-                            case "Subareas":
-                                if (key == "rows") subareasRows = int.Parse(value);
-                                else if (key == "cols")
+                                else if (key.StartsWith("YSplits[") && key.Contains("]_count"))
                                 {
-                                    subareasCols = int.Parse(value);
-                                    subareas = new SmallNet[subareasRows, subareasCols];
+                                    int idx = int.Parse(key.Substring(8, key.IndexOf(']') - 8));
+                                    int count = int.Parse(value);
+                                    YSplits[idx] = new List<double>(new double[count]);
+                                }
+                                else if (key.StartsWith("YSplits[") && key.Contains("]["))
+                                {
+                                    int idx = int.Parse(key.Substring(8, key.IndexOf(']') - 8));
+                                    int j_str_start = key.IndexOf(']') + 2;
+                                    string sub = key.Substring(j_str_start, key.LastIndexOf(']') - j_str_start);
+                                    int jdx = int.Parse(sub);
+                                    if (YSplits[idx] != null && jdx < YSplits[idx].Count)
+                                        YSplits[idx][jdx] = double.Parse(value);
                                 }
                                 break;
 
@@ -932,7 +981,47 @@ namespace K2
                                 {
                                     // Загружаем решение
                                 }
+                                else if (key == "size")
+                                {
+                                    int size = int.Parse(value);
+                                    solution = new double[size];
+                                }
+                                else if (key.StartsWith("solution[") && solution != null)
+                                {
+                                    int index = int.Parse(key.Substring(9, key.IndexOf(']') - 9));
+                                    solution[index] = double.Parse(value);
+                                }
                                 break;
+                            case "GlobalNetX":
+                                if (key == "count")
+                                {
+                                    globalNetXCount = int.Parse(value);
+                                    global_net_x = new List<double>();
+                                }
+                                else if (key.StartsWith("global_net_x[") && global_net_x != null)
+                                {
+                                    int index = int.Parse(key.Substring(13, key.IndexOf(']') - 13));
+                                    double val = double.Parse(value);
+                                    while (global_net_x.Count <= index) global_net_x.Add(0);
+                                    global_net_x[index] = val;
+                                }
+                                break;
+
+                            case "GlobalNetY":
+                                if (key == "count")
+                                {
+                                    globalNetYCount = int.Parse(value);
+                                    global_net_y = new List<double>();
+                                }
+                                else if (key.StartsWith("global_net_y[") && global_net_y != null)
+                                {
+                                    int index = int.Parse(key.Substring(13, key.IndexOf(']') - 13));
+                                    double val = double.Parse(value);
+                                    while (global_net_y.Count <= index) global_net_y.Add(0);
+                                    global_net_y[index] = val;
+                                }
+                                break;
+
                         }
                     }
                 }
@@ -941,6 +1030,22 @@ namespace K2
                 panel1.Visible = true;
                 panel1.Size = new Size((int)(orig_width * scale), (int)(orig_height * scale));
                 textBox3.Text = scale.ToString();
+
+
+                NetCalc netCalc = new NetCalc(q1, q2);
+                int subareas_x_count = XSplits.GetLength(0), subareas_y_count = YSplits.GetLength(0);
+                subareas = new SmallNet[subareas_x_count, subareas_y_count];
+
+                for (int i = 0; i < subareas_x_count; i++)
+                {
+                    for (int j = 0; j < subareas_y_count; j++)
+                    {
+                        // Генерируем сетку заново
+                        subareas[i, j] = netCalc.makeNet(XSplits[i], YSplits[j]);
+                    }
+                }
+
+
                 inner_net_editor_activate();
 
                 // Обновляем списки в интерфейсе
@@ -948,6 +1053,7 @@ namespace K2
 
                 panel1.Invalidate();
                 panel1.Update();
+                panelLegend.Invalidate();
 
                 MessageBox.Show($"Состояние загружено из файла:\n{filename}", "Загрузка");
             }
