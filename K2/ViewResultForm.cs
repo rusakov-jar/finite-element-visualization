@@ -495,6 +495,7 @@ namespace K2
             }
             if (show_zero_y)
             {
+                gl.Color(0.0f, 0.0f, 0.0f);
                 double x_step = x_size / x_zero_lines_num, z_step = z_size / z_zero_lines_num;
                 gl.Begin(OpenGL.GL_LINES);
                 for (int i = 0; i <= x_zero_lines_num; i++)
